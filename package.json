@@ -10,6 +10,8 @@
     "new-component": "new-component --lang ts"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.744.0",
+    "@aws-sdk/lib-dynamodb": "^3.744.0",
     "new-component": "^6.0.0",
     "next": "15.1.6",
     "react": "^19.0.0",

@@ -1,0 +1,43 @@
+"use server";
+
+import dynamoDb from "../utils/dynamodb/dbconfig";
+import { List, Task } from "@/types";
+
+export default async function getAllTasksByUserIdAndListId(currentTab: string) {
+  if (currentTab === "") {
+    return [];
+  }
+
+  try {
+    const params = {
+      TableName: "DailyTodo",
+      IndexName: "ListIndex",
+      KeyConditionExpression: "PK =:PK and listId =:listId",
+      ExpressionAttributeValues: {
+        ":PK": { S: "USER#12345" }, //Replace hardcoded user id with param
+        ":listId": { S: currentTab },
+      },
+    };
+    const data = await dynamoDb.query(params);
+    const tasks: Task[] | undefined = data.Items?.map((item) => ({
+      completed: item.completed.BOOL as boolean,
+      createdAt: item.createdAt.S as string,
+      SK: item.SK.S as string,
+      PK: item.PK.S as string,
+      taskName: item.taskName.S as string,
+      listId: item.listId.S as string,
+      deadline: item.deadline.S as string,
+      type: "TASK",
+      key: crypto.randomUUID(),
+    }));
+
+    if (!tasks) {
+      return [];
+    }
+
+    return tasks;
+  } catch (error) {
+    console.log("Error while getting items: ", error);
+    throw error;
+  }
+}
