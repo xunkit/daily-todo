@@ -6,7 +6,7 @@ import { List } from "@/types";
 export default async function getAllListsByUserId() {
   try {
     const params = {
-      TableName: "DailyTodo",
+      TableName: process.env.AWS_TABLE_NAME,
       IndexName: "DatatypeIndex",
       KeyConditionExpression: "PK =:PK and dataType =:dataType",
       ExpressionAttributeValues: {

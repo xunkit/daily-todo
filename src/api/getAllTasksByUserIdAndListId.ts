@@ -1,7 +1,7 @@
 "use server";
 
 import dynamoDb from "../utils/dynamodb/dbconfig";
-import { List, Task } from "@/types";
+import { Task } from "@/types";
 
 export default async function getAllTasksByUserIdAndListId(currentTab: string) {
   if (currentTab === "") {
@@ -10,7 +10,7 @@ export default async function getAllTasksByUserIdAndListId(currentTab: string) {
 
   try {
     const params = {
-      TableName: "DailyTodo",
+      TableName: process.env.AWS_TABLE_NAME,
       IndexName: "ListIndex",
       KeyConditionExpression: "PK =:PK and listId =:listId",
       ExpressionAttributeValues: {
