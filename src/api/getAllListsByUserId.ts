@@ -20,7 +20,7 @@ export default async function getAllListsByUserId() {
       SK: item.SK.S as string,
       PK: item.PK.S as string,
       listName: item.listName.S as string,
-      type: "LIST",
+      dataType: "LIST",
       key: crypto.randomUUID(),
     }));
 

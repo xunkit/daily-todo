@@ -7,8 +7,8 @@ export interface List {
   SK: string;
   PK: string;
   listName: string;
-  type: "LIST";
-  key: string;
+  dataType: "LIST";
+  key?: string;
 }
 
 export interface Task {
@@ -19,8 +19,8 @@ export interface Task {
   taskName: string;
   listId: string;
   deadline: string;
-  type: "TASK";
-  key: string;
+  dataType: "TASK";
+  key?: string;
 }
 
 export type DataItem = List | Task;
