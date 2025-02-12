@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.root {
+  isolation: isolate;
+}
+
 body {
   background: #ffffff;
 }

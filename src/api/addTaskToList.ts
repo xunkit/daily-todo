@@ -9,15 +9,33 @@ interface addTaskToListParams {
   Item: Task;
 }
 
-export default async function addTaskToList(currentTab: string, list: List) {
+export default async function addTaskToList(
+  currentTab: string,
+  taskName: string,
+  deadline: string
+) {
   try {
+    const taskId = crypto.randomUUID();
+    const newTask: Task = {
+      PK: "USER#12345",
+      SK: `TASK#${taskId}`,
+      listId: currentTab,
+      createdAt: "2025-02-11T01:02:00Z",
+      deadline: deadline,
+      dataType: "TASK",
+      taskName,
+      completed: false,
+    };
     const params: addTaskToListParams = {
       TableName: process.env.AWS_TABLE_NAME,
-      Item: list,
+      Item: newTask,
     };
     const command = new PutCommand(params);
     const response = await dynamoDb.send(command);
-    return response.$metadata.httpStatusCode === 200 ? true : false;
+    return {
+      ok: response.$metadata.httpStatusCode === 200 ? true : false,
+      newTask,
+    };
   } catch (error) {
     console.log("Error while adding a new task: ", error);
     throw error;
