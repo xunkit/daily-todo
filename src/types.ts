@@ -28,10 +28,19 @@ export type DataItem = List | Task;
 export interface TaskListProps {
   title: string;
   id: string;
+  currentTab: string;
+  setCurrentTab: (id: string) => void;
+  handleListNameChange: (newName: string, id: string) => Promise<string>;
 }
 
 export interface TaskItemProps {
   title: string;
   time: string;
   completed: boolean;
+  taskId: string;
+  handleEditTask: (
+    taskId: string,
+    newTask: string,
+    newDeadline: string
+  ) => Promise<{ task: string; deadline: string }>;
 }

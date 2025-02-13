@@ -2,10 +2,14 @@
 
 import addNewList from "@/api/addNewList";
 import addTaskToList from "@/api/addTaskToList";
+import changeListNameByListId from "@/api/changeListNameByListId";
+import editTaskByTaskId from "@/api/editTaskByTaskId";
 import getAllListsByUserId from "@/api/getAllListsByUserId";
 import getAllTasksByUserIdAndListId from "@/api/getAllTasksByUserIdAndListId";
 import AddTaskListDialog from "@/components/AddTaskListDialog";
-import { List, Task, TaskItemProps, TaskListProps } from "@/types";
+import TaskItem from "@/components/TaskItem";
+import TaskList from "@/components/TaskList";
+import { List, Task } from "@/types";
 import React from "react";
 
 export default function Home() {
@@ -89,39 +93,49 @@ export default function Home() {
     }
   };
 
-  const TaskItem = ({ title, time, completed }: TaskItemProps) => {
-    return (
-      <li className="my-2 flex items-center gap-2 border-b border-gray-200 last:border-b-0 pb-6">
-        <input
-          type="checkbox"
-          defaultChecked={completed}
-          className="mr-2 w-[32px] h-[32px]"
-        />
-        <div className="flex flex-col gap-1">
-          <span className="text-2xl">{title}</span>
-          <span className="text-lg font-mono">{time}</span>
-        </div>
-      </li>
-    );
+  const handleListNameChange = async (
+    listName: string,
+    listId: string
+  ): Promise<string> => {
+    try {
+      const response = await changeListNameByListId(listName, listId);
+      if (!response.ok) {
+        throw new Error("Error while changing the list's name");
+      }
+      const newListName = response.newListName;
+      // Why? This is to change the displayed name in the task section on the right too
+      // Previously, it would only reflect changes on the list section on the left
+      const nextAllLists = [...allLists];
+      const affectedList = nextAllLists.find((list) => list.SK === listId);
+      if (affectedList) {
+        affectedList.listName = newListName;
+      }
+      setAllLists(nextAllLists);
+      return newListName;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   };
 
-  const TaskList = ({ title, id }: TaskListProps) => {
-    const isBeingSelected = id === currentTab;
-    const turnBlueIfHoveredCSS = `${
-      isBeingSelected === false ? "hover:bg-sky-200" : ""
-    }`;
-    const turnBlueIfSelectedCSS = `${isBeingSelected ? "bg-sky-500" : ""}`;
-
-    return (
-      <li>
-        <button
-          className={`mb-2 cursor-pointer ${turnBlueIfHoveredCSS} p-4 w-[100%] text-start font-bold ${turnBlueIfSelectedCSS}`}
-          onClick={() => setCurrentTab(id)}
-        >
-          {title}
-        </button>
-      </li>
-    );
+  const handleEditTask = async (
+    taskId: string,
+    newTask: string,
+    newDeadline: string
+  ): Promise<{ task: string; deadline: string }> => {
+    try {
+      const response = await editTaskByTaskId(taskId, newTask, newDeadline);
+      if (!response.ok) {
+        throw new Error("Error while changing the task information");
+      }
+      return {
+        task: response.newTask.task,
+        deadline: response.newTask.deadline,
+      };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   };
 
   const AddListButton = () => {
@@ -148,7 +162,14 @@ export default function Home() {
           <ul className="text-2xl flex flex-col">
             {allLists.map((list) => {
               return (
-                <TaskList key={list.key} title={list.listName} id={list.SK} />
+                <TaskList
+                  key={list.key}
+                  title={list.listName}
+                  id={list.SK}
+                  currentTab={currentTab}
+                  setCurrentTab={setCurrentTab}
+                  handleListNameChange={handleListNameChange}
+                />
               );
             })}
           </ul>
@@ -175,6 +196,7 @@ export default function Home() {
                     setTentativeTask(e.target.value);
                   }}
                   ref={TaskFieldRef}
+                  required
                 />
                 <input
                   className="flex-[20%] bg-inherit text-2xl px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
@@ -201,6 +223,8 @@ export default function Home() {
                     title={task.taskName}
                     time={task.deadline}
                     completed={task.completed}
+                    taskId={task.SK}
+                    handleEditTask={handleEditTask}
                   />
                 );
               })}
