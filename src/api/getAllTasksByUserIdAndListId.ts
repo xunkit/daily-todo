@@ -27,7 +27,7 @@ export default async function getAllTasksByUserIdAndListId(currentTab: string) {
       taskName: item.taskName.S as string,
       listId: item.listId.S as string,
       deadline: item.deadline.S as string,
-      type: "TASK",
+      dataType: "TASK",
       key: crypto.randomUUID(),
     }));
 
