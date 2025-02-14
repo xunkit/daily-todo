@@ -2,6 +2,7 @@ import * as React from "react";
 import { TaskItemProps } from "@/types";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
+import DeleteDialog from "../DeleteDialog";
 
 const TaskItem = ({
   title,
@@ -9,9 +10,29 @@ const TaskItem = ({
   completed,
   taskId,
   handleEditTask: onSubmit,
+  handleDeleteTask: handleDelete,
+  handleToggleTaskCompletion: onToggleCompletion,
 }: TaskItemProps) => {
   const [task, setTask] = React.useState(title);
   const [deadline, setDeadline] = React.useState(time);
+  const [isCompleted, setIsCompleted] = React.useState<boolean>(completed);
+  const [isToggling, setIsToggling] = React.useState<boolean>(false);
+  const [toggleCompletedError, setToggleCompletedError] =
+    React.useState<string>("");
+
+  const handleToggleCompletion = async () => {
+    setIsToggling(true);
+    setToggleCompletedError("");
+    try {
+      const newIsCompleted = await onToggleCompletion(taskId, !isCompleted);
+      setIsCompleted(newIsCompleted);
+    } catch (error) {
+      setToggleCompletedError((error as Error).toString());
+      throw error;
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   // Dialog to Edit the list's name
   interface EditTaskDialogProps {
@@ -20,9 +41,9 @@ const TaskItem = ({
   const EditTaskDialog = ({ children }: EditTaskDialogProps) => {
     const inputId1 = React.useId();
     const inputId2 = React.useId();
-    const [tentativeTask, setTentativeTask] = React.useState<string>("");
+    const [tentativeTask, setTentativeTask] = React.useState<string>(title);
     const [tentativeDeadline, setTentativeDeadline] =
-      React.useState<string>("");
+      React.useState<string>(time);
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>();
     const [error, setError] = React.useState<string>("");
     const [isSubmitting, setIsSubmitting] = React.useState<boolean>();
@@ -133,8 +154,10 @@ const TaskItem = ({
     <li className="my-2 flex items-center gap-2 border-b border-gray-200 last:border-b-0 pb-6">
       <input
         type="checkbox"
-        defaultChecked={completed}
+        checked={isCompleted}
+        onChange={async () => await handleToggleCompletion()}
         className="mr-2 w-[32px] h-[32px]"
+        disabled={isToggling}
       />
       <div className="relative flex flex-col gap-1 w-[100%]">
         <span className="text-2xl pr-8">{task}</span>
@@ -163,12 +186,21 @@ const TaskItem = ({
                   Edit
                 </button>
               </EditTaskDialog>
-              <DropdownMenu.Item className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none">
-                Delete
-              </DropdownMenu.Item>
+              <DeleteDialog
+                onDelete={async () => {
+                  await handleDelete(taskId);
+                }}
+              >
+                <button className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start">
+                  Delete
+                </button>
+              </DeleteDialog>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
+        {toggleCompletedError !== "" && (
+          <p className="text-red-400">{toggleCompletedError}</p>
+        )}
       </div>
     </li>
   );

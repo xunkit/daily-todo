@@ -1,13 +1,8 @@
 "use server";
 
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
-
-interface addTaskToListParams {
-  TableName: string | undefined;
-  Item: Task;
-}
 
 export default async function addTaskToList(
   currentTab: string,
@@ -15,6 +10,22 @@ export default async function addTaskToList(
   deadline: string
 ) {
   try {
+    // First, check if the list even exists
+    const getListParams = {
+      TableName: process.env.AWS_TABLE_NAME,
+      Key: {
+        PK: "USER#12345", // PK of the list
+        SK: currentTab, // SK of the list
+      },
+    };
+    const getCommand = new GetCommand(getListParams);
+    const listData = await dynamoDb.send(getCommand);
+
+    if (!listData.Item) {
+      // If list doesn't exist
+      throw new Error("The list does not exist");
+    }
+
     const taskId = crypto.randomUUID();
     const newTask: Task = {
       PK: "USER#12345",
@@ -26,7 +37,8 @@ export default async function addTaskToList(
       taskName,
       completed: false,
     };
-    const params: addTaskToListParams = {
+
+    const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Item: newTask,
     };

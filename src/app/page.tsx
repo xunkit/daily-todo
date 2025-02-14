@@ -3,9 +3,12 @@
 import addNewList from "@/api/addNewList";
 import addTaskToList from "@/api/addTaskToList";
 import changeListNameByListId from "@/api/changeListNameByListId";
+import deleteListByListId from "@/api/deleteListByListId";
+import deleteTaskByTaskId from "@/api/deleteTaskByTaskId";
 import editTaskByTaskId from "@/api/editTaskByTaskId";
 import getAllListsByUserId from "@/api/getAllListsByUserId";
 import getAllTasksByUserIdAndListId from "@/api/getAllTasksByUserIdAndListId";
+import toggleTaskCompletionByTaskId from "@/api/toggleTaskCompletionByTaskId";
 import AddTaskListDialog from "@/components/AddTaskListDialog";
 import TaskItem from "@/components/TaskItem";
 import TaskList from "@/components/TaskList";
@@ -18,6 +21,7 @@ export default function Home() {
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
   const [tentativeTask, setTentativeTask] = React.useState<string>("");
   const [tentativeDeadline, setTentativeDeadline] = React.useState<string>("");
+  const [addTaskError, setAddTaskError] = React.useState<string>("");
   const TaskFieldRef = React.useRef<HTMLInputElement>(null);
 
   const currentTabName: string | undefined = allLists.find(
@@ -71,6 +75,7 @@ export default function Home() {
 
   const handleAddTaskToList = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setAddTaskError("");
     try {
       const response = await addTaskToList(
         currentTab,
@@ -89,6 +94,7 @@ export default function Home() {
       TaskFieldRef.current?.focus();
     } catch (error) {
       console.error(error);
+      setAddTaskError((error as Error).toString());
       throw error;
     }
   };
@@ -138,6 +144,49 @@ export default function Home() {
     }
   };
 
+  const handleToggleTaskCompletion = async (
+    taskId: string,
+    isCompleted: boolean
+  ): Promise<boolean> => {
+    try {
+      const newCompleted = await toggleTaskCompletionByTaskId(
+        taskId,
+        isCompleted
+      );
+      return newCompleted;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string): Promise<void> => {
+    try {
+      await deleteTaskByTaskId(taskId);
+      const newCurrentList = [...currentList].filter(
+        (task) => task.SK !== taskId
+      );
+      setCurrentList(newCurrentList);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const handleDeleteList = async (listId: string): Promise<void> => {
+    try {
+      await deleteListByListId(listId);
+      const newAllLists = [...allLists].filter((list) => list.SK !== listId);
+      setAllLists(newAllLists);
+      if (currentTab === listId) {
+        setCurrentTab("");
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   const AddListButton = () => {
     return (
       <span className="bg-black text-white text-xl font-extrabold p-1 px-2 w-8 h-8 hover:bg-gray-400">
@@ -169,6 +218,7 @@ export default function Home() {
                   currentTab={currentTab}
                   setCurrentTab={setCurrentTab}
                   handleListNameChange={handleListNameChange}
+                  handleDeleteList={handleDeleteList}
                 />
               );
             })}
@@ -214,6 +264,9 @@ export default function Home() {
                   +
                 </button>
               </form>
+              {addTaskError !== "" && (
+                <p className="text-red-400">{addTaskError}</p>
+              )}
             </div>
             <ul className="px-12 py-0 flex flex-col">
               {currentList.map((task) => {
@@ -225,6 +278,8 @@ export default function Home() {
                     completed={task.completed}
                     taskId={task.SK}
                     handleEditTask={handleEditTask}
+                    handleDeleteTask={handleDeleteTask}
+                    handleToggleTaskCompletion={handleToggleTaskCompletion}
                   />
                 );
               })}

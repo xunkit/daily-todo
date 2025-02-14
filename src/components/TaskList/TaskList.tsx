@@ -2,6 +2,7 @@ import * as React from "react";
 import { TaskListProps } from "@/types";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
+import DeleteDialog from "../DeleteDialog";
 
 const TaskList = ({
   title,
@@ -9,6 +10,7 @@ const TaskList = ({
   currentTab,
   setCurrentTab,
   handleListNameChange: onSubmit,
+  handleDeleteList: onDelete,
 }: TaskListProps) => {
   const inputId = React.useId();
   // Why listName? To be able to update the displayed list name
@@ -149,9 +151,15 @@ const TaskList = ({
                 Edit
               </button>
             </EditListDialog>
-            <DropdownMenu.Item className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none">
-              Delete
-            </DropdownMenu.Item>
+            <DeleteDialog
+              onDelete={async () => {
+                await onDelete(id);
+              }}
+            >
+              <button className="p-2 bg-red-50 hover:bg-red-100 w-[100%] text-start hover:outline-none">
+                Delete
+              </button>
+            </DeleteDialog>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

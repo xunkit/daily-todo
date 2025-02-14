@@ -31,6 +31,7 @@ export interface TaskListProps {
   currentTab: string;
   setCurrentTab: (id: string) => void;
   handleListNameChange: (newName: string, id: string) => Promise<string>;
+  handleDeleteList: (listId: string) => Promise<void>;
 }
 
 export interface TaskItemProps {
@@ -43,4 +44,9 @@ export interface TaskItemProps {
     newTask: string,
     newDeadline: string
   ) => Promise<{ task: string; deadline: string }>;
+  handleDeleteTask: (taskId: string) => Promise<void>;
+  handleToggleTaskCompletion: (
+    taskId: string,
+    isCompleted: boolean
+  ) => Promise<boolean>;
 }
