@@ -19,9 +19,11 @@ const TaskList = ({
   const [listName, setListName] = React.useState<string>(title);
   const isBeingSelected = id === currentTab;
   const turnBlueIfHoveredCSS = `${
-    isBeingSelected === false ? "hover:bg-sky-200" : ""
+    isBeingSelected === false ? "hover:bg-gray-200" : ""
   }`;
-  const turnBlueIfSelectedCSS = `${isBeingSelected ? "bg-sky-500" : ""}`;
+  const turnBlueIfSelectedCSS = `${
+    isBeingSelected ? "bg-sky-200 text-sky-800" : ""
+  }`;
 
   // Dialog to Edit the list's name
   interface EditListDialogProps {
@@ -29,7 +31,7 @@ const TaskList = ({
   }
   const EditListDialog = ({ children }: EditListDialogProps) => {
     const [tentativeListName, setTentativeListName] =
-      React.useState<string>("");
+      React.useState<string>(title);
     const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>();
     const [error, setError] = React.useState<string>("");
     const [isSubmitting, setIsSubmitting] = React.useState<boolean>();
@@ -48,6 +50,7 @@ const TaskList = ({
         const newListName: string = await onSubmit(tentativeListName, id);
         setListName(newListName);
         setIsDialogOpen(false);
+        setIsDropdownOpen(false);
       } catch (error) {
         setError((error as Error).toString());
         throw error;
@@ -79,6 +82,7 @@ const TaskList = ({
                 id={inputId}
                 required
                 value={tentativeListName}
+                maxLength={40}
                 onChange={(e) => setTentativeListName(e.target.value)}
               />
               {error !== "" && <p className="text-red-400">{error}</p>}
@@ -97,10 +101,10 @@ const TaskList = ({
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className={`bg-sky-500 px-4 py-2 ${
+                  className={`px-4 py-2 ${
                     isSubmitting
                       ? "bg-gray-400 hover:bg-gray-400"
-                      : "hover:bg-sky-700"
+                      : "bg-sky-500 hover:bg-sky-700"
                   }`}
                 >
                   Save
@@ -119,10 +123,12 @@ const TaskList = ({
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>();
   return (
     <li
-      className={`flex justify-between items-center relative ${turnBlueIfHoveredCSS} ${turnBlueIfSelectedCSS}`}
+      className={`flex justify-between items-center relative rounded-full ${turnBlueIfHoveredCSS} ${turnBlueIfSelectedCSS}`}
     >
       <button
-        className={`cursor-pointer p-4 w-[100%] text-start font-bold`}
+        className={`cursor-pointer p-4 px-5 w-[80%] truncate text-start ${
+          isBeingSelected ? "font-bold text-[105%]" : ""
+        }`}
         onClick={() => setCurrentTab(id)}
       >
         {listName}
@@ -136,12 +142,11 @@ const TaskList = ({
       >
         <DropdownMenu.Trigger asChild>
           <button
-            className={`absolute right-0 h-[100%] p-2 hover:bg-black/20 focus:bg-black/20 ${
-              isDropdownOpen ? "bg-black/20" : ""
-            } active:outline-none focus-visible:outline-none`}
-          >
-            ⋯
-          </button>
+            className={`absolute right-5 p-4 h-10 w-10 hover:bg-black/10 focus:bg-black/10 ${
+              isDropdownOpen ? "bg-black/10" : ""
+            } active:outline-none focus-visible:outline-none after:content-[attr(data-content)] after:relative after:right-[5px] after:bottom-[10px] rounded-full`}
+            data-content="⋯"
+          ></button>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>

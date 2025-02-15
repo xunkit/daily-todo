@@ -103,6 +103,7 @@ const TaskItem = ({
                 required
                 value={tentativeTask}
                 onChange={(e) => setTentativeTask(e.target.value)}
+                maxLength={120}
               />
               <label htmlFor={inputId2} className="font-bold">
                 Deadline
@@ -112,6 +113,7 @@ const TaskItem = ({
                 placeholder="Deadline"
                 id={inputId2}
                 value={tentativeDeadline}
+                maxLength={40}
                 onChange={(e) => setTentativeDeadline(e.target.value)}
               />
               {error !== "" && <p className="text-red-400">{error}</p>}
@@ -160,8 +162,8 @@ const TaskItem = ({
         disabled={isToggling}
       />
       <div className="relative flex flex-col gap-1 w-[100%]">
-        <span className="text-2xl pr-8">{task}</span>
-        <span className="text-lg font-mono">{deadline}</span>
+        <span className="text-lg pr-8 break-all">{task}</span>
+        <span className="text-base font-mono">{deadline}</span>
         <DropdownMenu.Root
           defaultOpen={false}
           open={isDropdownOpen}

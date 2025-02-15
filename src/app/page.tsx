@@ -16,13 +16,28 @@ import { List, Task } from "@/types";
 import React from "react";
 
 export default function Home() {
+  // currentTab: The listId of the tab currently being selected
   const [currentTab, setCurrentTab] = React.useState<string>("");
+  // allLists: An array containing all lists of the user, including metadata
+  // and tasks inside a list. For reference, see type.tsx
   const [allLists, setAllLists] = React.useState<Array<List>>([]);
+  // currentList: An array containing all tasks inside the currently selected list
+  // Quite a confusing name, indeed
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
+  // tentativeTask: A state to manage the current task being typed in
   const [tentativeTask, setTentativeTask] = React.useState<string>("");
+  // tentativeDeadline: A state to manage the current deadline being typed in
   const [tentativeDeadline, setTentativeDeadline] = React.useState<string>("");
+  // addTaskError: Errors related to adding tasks
   const [addTaskError, setAddTaskError] = React.useState<string>("");
+  // taskFieldRef: A ref of the Task field, mainly used to focus back on the first field
+  // after the user presses the add button
   const TaskFieldRef = React.useRef<HTMLInputElement>(null);
+  // isAddingTask: A state to manage whether the process of adding task
+  // is being carried out, in which case the add button will pause momentarily
+  const [isAddingTask, setIsAddingTask] = React.useState<boolean>(false);
+  // congratulations: Congratulate the user on finishing all their tasks
+  const [congratulations, setCongratulations] = React.useState<string>("");
 
   const currentTabName: string | undefined = allLists.find(
     (list) => list.SK === currentTab
@@ -36,6 +51,7 @@ export default function Home() {
     const fetchTasks = async () => {
       const tasks = await getAllTasksByUserIdAndListId(currentTab);
       setCurrentList(tasks);
+      setCongratulations("");
     };
 
     fetchTasks();
@@ -53,6 +69,8 @@ export default function Home() {
   const handleAddNewList = async (listName: string) => {
     try {
       const response = await addNewList(listName);
+      const responseListId = response.listId;
+      const responseListName = response.listName;
       if (!response.ok) {
         throw new Error("Error while adding a new list");
       }
@@ -60,13 +78,14 @@ export default function Home() {
         ...allLists,
         {
           PK: "USER#12345",
-          SK: `LIST#${response.listId}`,
+          SK: responseListId,
           createdAt: "2025-02-11T01:02:00Z",
           dataType: "LIST",
-          listName: `${listName}`,
-          key: `LIST#${response.listId}`,
+          listName: responseListName,
+          key: responseListId,
         },
       ]);
+      setCurrentTab(responseListId);
     } catch (error) {
       console.error(error);
       throw error;
@@ -76,6 +95,7 @@ export default function Home() {
   const handleAddTaskToList = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setAddTaskError("");
+    setIsAddingTask(true);
     try {
       const response = await addTaskToList(
         currentTab,
@@ -96,6 +116,8 @@ export default function Home() {
       console.error(error);
       setAddTaskError((error as Error).toString());
       throw error;
+    } finally {
+      setIsAddingTask(false);
     }
   };
 
@@ -153,6 +175,14 @@ export default function Home() {
         taskId,
         isCompleted
       );
+      const task = [...currentList].find((task) => task.SK === taskId);
+      if (task) task.completed = newCompleted;
+      if (currentList.every((task) => task.completed === true)) {
+        setCongratulations("Nice work!");
+      } else {
+        setCongratulations("");
+      }
+      setCurrentList([...currentList]);
       return newCompleted;
     } catch (error) {
       console.error(error);
@@ -189,26 +219,25 @@ export default function Home() {
 
   const AddListButton = () => {
     return (
-      <span className="bg-black text-white text-xl font-extrabold p-1 px-2 w-8 h-8 hover:bg-gray-400">
-        +
-      </span>
+      <div
+        className="bg-gray-300 text-gray-800 text-xl font-extrabold w-10 h-10 rounded-full hover:bg-gray-400 after:content-[attr(data-content)] after:relative after:right-[0px] after:top-[4px]"
+        data-content="+"
+      />
     );
   };
 
   return (
     <>
-      <div className="flex justify-center items-start mx-auto mt-8 max-w-[1200px] gap-8">
-        <div className="flex-[20%] pt-8">
-          <div className="flex justify-between border-b-2 mb-8 w-[100%] items-center">
-            <h2 className="text-xl font-bold font-mono py-2 border-gray-200">
-              MY LISTS
-            </h2>
+      <div className="flex justify-center items-stretch">
+        <div className="w-[250px] lg:w-[300px] pt-8 px-4 bg-sky-50 min-h-[100svh]">
+          <div className="flex justify-between mb-8 w-[100%] items-center pr-5">
+            <h2 className="text-xl font-bold font-mono py-2 px-5">MY LISTS</h2>
             <AddTaskListDialog
               trigger={<AddListButton />}
               onSubmit={handleAddNewList}
             />
           </div>
-          <ul className="text-2xl flex flex-col">
+          <ul className="text-lg flex flex-col">
             {allLists.map((list) => {
               return (
                 <TaskList
@@ -225,20 +254,32 @@ export default function Home() {
           </ul>
         </div>
         {currentTab !== "" ? (
-          <div className="flex-[80%] bg-gray-100">
-            <div className="flex justify-between items-center bg-sky-500 px-12 py-8">
+          <div className="flex-1">
+            <div className="flex flex-col justify-between items-start px-12 py-8">
               <h2 className="text-2xl font-bold">{currentTabName}</h2>
-              <span className="text-sm">
-                {remainingTasks > 1
-                  ? `${remainingTasks} tasks`
-                  : `${remainingTasks} task`}{" "}
-                remaining
-              </span>
+              <div className="flex gap-2">
+                <span className="text-lg">
+                  {remainingTasks > 1
+                    ? `${remainingTasks} tasks`
+                    : `${remainingTasks} task`}{" "}
+                  remaining
+                </span>
+                {congratulations && (
+                  <>
+                    <span className="font-bold text-sky-800 underline underline-offset-4 pl-[8px] pt-[2px]">
+                      {congratulations} 🎊
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="px-12 py-12">
-              <form className="flex gap-8" onSubmit={handleAddTaskToList}>
+            <div className="px-12 py-12 pt-4">
+              <form
+                className="flex gap-8 text-lg"
+                onSubmit={handleAddTaskToList}
+              >
                 <input
-                  className="flex-[60%] bg-inherit text-2xl px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                  className="flex-[60%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
                   placeholder="New task"
                   value={tentativeTask}
@@ -246,20 +287,29 @@ export default function Home() {
                     setTentativeTask(e.target.value);
                   }}
                   ref={TaskFieldRef}
+                  maxLength={120}
+                  disabled={isAddingTask}
                   required
                 />
                 <input
-                  className="flex-[20%] bg-inherit text-2xl px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                  className="flex-[20%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
                   placeholder="Deadline"
                   value={tentativeDeadline}
                   onChange={(e) => {
                     setTentativeDeadline(e.target.value);
                   }}
+                  maxLength={40}
+                  disabled={isAddingTask}
                 />
                 <button
                   type="submit"
-                  className="flex-1 bg-black text-white text-xl font-extrabold px-4 hover:bg-gray-400"
+                  className={`aspect-square text-white text-xl font-extrabold px-4  ${
+                    isAddingTask
+                      ? "bg-gray-400 hover:bg-gray-400"
+                      : "bg-black hover:bg-gray-400"
+                  }`}
+                  disabled={isAddingTask}
                 >
                   +
                 </button>

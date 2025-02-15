@@ -46,19 +46,19 @@ function AddTaskListDialog({ trigger, onSubmit }: AddTaskListDialogProps) {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow">
-          <Dialog.Title className="text-3xl mb-8">
+          <Dialog.Title className="text-xl mb-8">
             Create a new list
           </Dialog.Title>
-          <form className="flex flex-col text-xl" onSubmit={handleSubmit}>
+          <form className="flex flex-col text-base" onSubmit={handleSubmit}>
             <label htmlFor={id} className="font-bold">
               List name
             </label>
             <input
               className="bg-inherit min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
-              placeholder="Name"
+              placeholder="New list"
               id={id}
-              required
               value={tentativeListName}
+              maxLength={40}
               onChange={(e) => {
                 setTentativeListName(e.target.value);
               }}

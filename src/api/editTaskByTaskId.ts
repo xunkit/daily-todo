@@ -9,6 +9,15 @@ export default async function editTaskByTaskId(
   newTask: string,
   newDeadline: string
 ): Promise<{ ok: boolean; newTask: { task: string; deadline: string } }> {
+  // WHY? To limit task length and deadline length
+  if (newTask.length > 120) {
+    throw new Error("Task is maximum 120 characters long");
+  }
+
+  if (newDeadline.length > 40) {
+    throw new Error("Deadline is maximum 40 characters long");
+  }
+
   try {
     const params = {
       TableName: process.env.AWS_TABLE_NAME,

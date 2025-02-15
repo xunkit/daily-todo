@@ -9,6 +9,20 @@ export default async function addTaskToList(
   taskName: string,
   deadline: string
 ) {
+  // WHY? To prevent users from submitting empty (meaningless) tasks
+  if (taskName === "" || undefined || null) {
+    throw new Error("Please specify the task");
+  }
+
+  // WHY? To limit task length and deadline length
+  if (taskName.length > 120) {
+    throw new Error("Task is maximum 120 characters long");
+  }
+
+  if (deadline.length > 40) {
+    throw new Error("Deadline is maximum 40 characters long");
+  }
+
   try {
     // First, check if the list even exists
     const getListParams = {
