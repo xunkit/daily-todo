@@ -3,12 +3,13 @@ import { TaskListProps } from "@/types";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
 import DeleteDialog from "../DeleteDialog";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 const TaskList = ({
   title,
   id,
   currentTab,
-  setCurrentTab,
+  handleSetCurrentTab: onSetCurrentTab,
   handleListNameChange: onSubmit,
   handleDeleteList: onDelete,
 }: TaskListProps) => {
@@ -129,7 +130,7 @@ const TaskList = ({
         className={`cursor-pointer p-4 px-5 w-[80%] truncate text-start ${
           isBeingSelected ? "font-bold text-[105%]" : ""
         }`}
-        onClick={() => setCurrentTab(id)}
+        onClick={() => onSetCurrentTab(id)}
       >
         {listName}
       </button>
@@ -142,11 +143,12 @@ const TaskList = ({
       >
         <DropdownMenu.Trigger asChild>
           <button
-            className={`absolute right-5 p-4 h-10 w-10 hover:bg-black/10 focus:bg-black/10 ${
+            className={`absolute right-5 p-[10px] h-10 w-10 hover:bg-black/10 focus:bg-black/10 ${
               isDropdownOpen ? "bg-black/10" : ""
-            } active:outline-none focus-visible:outline-none after:content-[attr(data-content)] after:relative after:right-[5px] after:bottom-[10px] rounded-full`}
-            data-content="⋯"
-          ></button>
+            } active:outline-none focus-visible:outline-none rounded-full`}
+          >
+            <DotsHorizontalIcon />
+          </button>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>

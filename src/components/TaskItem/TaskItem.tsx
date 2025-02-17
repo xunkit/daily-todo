@@ -3,6 +3,7 @@ import { TaskItemProps } from "@/types";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
 import DeleteDialog from "../DeleteDialog";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 const TaskItem = ({
   title,
@@ -177,7 +178,7 @@ const TaskItem = ({
                 isDropdownOpen ? "bg-black/20" : ""
               } active:outline-none focus-visible:outline-none`}
             >
-              ⋯
+              <DotsHorizontalIcon />
             </button>
           </DropdownMenu.Trigger>
 

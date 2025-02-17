@@ -14,6 +14,7 @@ import TaskItem from "@/components/TaskItem";
 import TaskList from "@/components/TaskList";
 import { List, Task } from "@/types";
 import React from "react";
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
 
 export default function Home() {
   // currentTab: The listId of the tab currently being selected
@@ -24,6 +25,8 @@ export default function Home() {
   // currentList: An array containing all tasks inside the currently selected list
   // Quite a confusing name, indeed
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
+  // isLoadingList: A state to manage when the app is fetching tasks from a list
+  const [isLoadingList, setIsLoadingList] = React.useState<boolean>();
   // tentativeTask: A state to manage the current task being typed in
   const [tentativeTask, setTentativeTask] = React.useState<string>("");
   // tentativeDeadline: A state to manage the current deadline being typed in
@@ -38,6 +41,16 @@ export default function Home() {
   const [isAddingTask, setIsAddingTask] = React.useState<boolean>(false);
   // congratulations: Congratulate the user on finishing all their tasks
   const [congratulations, setCongratulations] = React.useState<string>("");
+  // taskFilterMode: A state to manage how tasks are being filtered
+  const [taskFilterMode, setTaskFilterMode] = React.useState<
+    "all" | "completed" | "pending"
+  >("all");
+  // filteredList: Tasks that have been filtered based on taskFilterMode
+  const filteredList: Array<Task> = currentList.filter((task) => {
+    if (taskFilterMode === "all") return currentList;
+    if (taskFilterMode === "completed") return task.completed === true;
+    if (taskFilterMode === "pending") return task.completed === false;
+  });
 
   const currentTabName: string | undefined = allLists.find(
     (list) => list.SK === currentTab
@@ -52,6 +65,7 @@ export default function Home() {
       const tasks = await getAllTasksByUserIdAndListId(currentTab);
       setCurrentList(tasks);
       setCongratulations("");
+      setIsLoadingList(false);
     };
 
     fetchTasks();
@@ -65,6 +79,13 @@ export default function Home() {
 
     temp();
   }, []);
+
+  const handleSetCurrentTab = async (listId: string) => {
+    if (currentTab !== listId) {
+      setIsLoadingList(true);
+    }
+    setCurrentTab(listId);
+  };
 
   const handleAddNewList = async (listName: string) => {
     try {
@@ -238,22 +259,39 @@ export default function Home() {
             />
           </div>
           <ul className="text-lg flex flex-col">
-            {allLists.map((list) => {
-              return (
-                <TaskList
-                  key={list.key}
-                  title={list.listName}
-                  id={list.SK}
-                  currentTab={currentTab}
-                  setCurrentTab={setCurrentTab}
-                  handleListNameChange={handleListNameChange}
-                  handleDeleteList={handleDeleteList}
-                />
-              );
-            })}
+            {[...allLists]
+              .sort((listA, listB) => {
+                const dateA = new Date(listA.createdAt).getTime();
+                const dateB = new Date(listB.createdAt).getTime();
+
+                return dateA - dateB;
+              })
+              .map((list) => {
+                return (
+                  <TaskList
+                    key={list.key}
+                    title={list.listName}
+                    id={list.SK}
+                    currentTab={currentTab}
+                    handleSetCurrentTab={handleSetCurrentTab}
+                    handleListNameChange={handleListNameChange}
+                    handleDeleteList={handleDeleteList}
+                  />
+                );
+              })}
           </ul>
         </div>
-        {currentTab !== "" ? (
+        {isLoadingList === true ? (
+          <div className="flex-1">
+            <div className="flex flex-col justify-between items-start px-12 py-8">
+              <h2 className="text-2xl font-bold">{currentTabName}</h2>
+              <div className="flex gap-2">
+                <span className="text-lg">Loading…</span>
+              </div>
+            </div>
+            <div className="px-12 py-12 pt-4"></div>
+          </div>
+        ) : currentTab !== "" ? (
           <div className="flex-1">
             <div className="flex flex-col justify-between items-start px-12 py-8">
               <h2 className="text-2xl font-bold">{currentTabName}</h2>
@@ -318,21 +356,58 @@ export default function Home() {
                 <p className="text-red-400">{addTaskError}</p>
               )}
             </div>
-            <ul className="px-12 py-0 flex flex-col">
-              {currentList.map((task) => {
-                return (
-                  <TaskItem
-                    key={task.key}
-                    title={task.taskName}
-                    time={task.deadline}
-                    completed={task.completed}
-                    taskId={task.SK}
-                    handleEditTask={handleEditTask}
-                    handleDeleteTask={handleDeleteTask}
-                    handleToggleTaskCompletion={handleToggleTaskCompletion}
-                  />
-                );
-              })}
+            <div>
+              <ToggleGroup.Root
+                type="single"
+                aria-label="Filter tasks"
+                value={taskFilterMode}
+                onValueChange={(value: "all" | "completed" | "pending") => {
+                  setTaskFilterMode(value);
+                }}
+                className="flex gap-8 px-12"
+              >
+                <ToggleGroup.Item
+                  value="all"
+                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                >
+                  Show all
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="pending"
+                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                >
+                  Pending only
+                </ToggleGroup.Item>
+                <ToggleGroup.Item
+                  value="completed"
+                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                >
+                  Completed only
+                </ToggleGroup.Item>
+              </ToggleGroup.Root>
+            </div>
+            <ul className="px-12 py-8 flex flex-col">
+              {[...filteredList]
+                .sort((taskA, taskB) => {
+                  const dateA = new Date(taskA.createdAt).getTime();
+                  const dateB = new Date(taskB.createdAt).getTime();
+
+                  return dateA - dateB;
+                })
+                .map((task) => {
+                  return (
+                    <TaskItem
+                      key={task.key}
+                      title={task.taskName}
+                      time={task.deadline}
+                      completed={task.completed}
+                      taskId={task.SK}
+                      handleEditTask={handleEditTask}
+                      handleDeleteTask={handleDeleteTask}
+                      handleToggleTaskCompletion={handleToggleTaskCompletion}
+                    />
+                  );
+                })}
             </ul>
           </div>
         ) : (

@@ -23,7 +23,7 @@ export default async function addNewList(listName: string) {
       Item: {
         PK: "USER#12345",
         SK: `LIST#${listId}`,
-        createdAt: "2025-02-11T01:02:00Z",
+        createdAt: new Date().toISOString().split(".")[0] + "Z",
         dataType: "LIST",
         listName: newListName,
       },
