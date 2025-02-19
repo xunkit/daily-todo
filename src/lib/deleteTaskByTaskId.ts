@@ -2,15 +2,18 @@
 
 import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
+import { auth } from "@/auth";
 
 export default async function deleteTaskByTaskId(
   taskId: string
 ): Promise<void> {
+  const session = await auth();
+
   try {
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Key: {
-        PK: "USER#12345",
+        PK: `USER#${session?.user?.id}`,
         SK: taskId,
       },
     };

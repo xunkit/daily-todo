@@ -1,9 +1,12 @@
 "use server";
 
+import { auth } from "@/auth";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
 
 export default async function getAllTasksByUserIdAndListId(currentTab: string) {
+  const session = await auth();
+
   if (currentTab === "") {
     return [];
   }
@@ -14,7 +17,7 @@ export default async function getAllTasksByUserIdAndListId(currentTab: string) {
       IndexName: "ListIndex",
       KeyConditionExpression: "PK =:PK and listId =:listId",
       ExpressionAttributeValues: {
-        ":PK": { S: "USER#12345" }, //Replace hardcoded user id with param
+        ":PK": { S: `USER#${session?.user?.id}` }, //Replace hardcoded user id with param
         ":listId": { S: currentTab },
       },
     };

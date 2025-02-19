@@ -3,12 +3,15 @@
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
+import { auth } from "@/auth";
 
 export default async function addTaskToList(
   currentTab: string,
   taskName: string,
   deadline: string
 ) {
+  const session = await auth();
+
   // WHY? To prevent users from submitting empty (meaningless) tasks
   if (taskName === "" || undefined || null) {
     throw new Error("Please specify the task");
@@ -28,7 +31,7 @@ export default async function addTaskToList(
     const getListParams = {
       TableName: process.env.AWS_TABLE_NAME,
       Key: {
-        PK: "USER#12345", // PK of the list
+        PK: `USER#${session?.user?.id}`, // PK of the list
         SK: currentTab, // SK of the list
       },
     };
@@ -42,7 +45,7 @@ export default async function addTaskToList(
 
     const taskId = crypto.randomUUID();
     const newTask: Task = {
-      PK: "USER#12345",
+      PK: `USER#${session?.user?.id}`,
       SK: `TASK#${taskId}`,
       listId: currentTab,
       createdAt: new Date().toISOString().split(".")[0] + "Z",

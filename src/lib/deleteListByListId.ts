@@ -2,10 +2,13 @@
 
 import { BatchWriteCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
+import { auth } from "@/auth";
 
 export default async function deleteListByListId(
   listId: string
 ): Promise<void> {
+  const session = await auth();
+
   try {
     // Delete all tasks first
     const taskQueryParams = {
@@ -13,7 +16,7 @@ export default async function deleteListByListId(
       IndexName: "ListIndex",
       KeyConditionExpression: "PK =:PK and listId =:listId",
       ExpressionAttributeValues: {
-        ":PK": { S: "USER#12345" },
+        ":PK": { S: `USER#${session?.user?.id}` },
         ":listId": { S: listId },
       },
     };
@@ -122,7 +125,7 @@ export default async function deleteListByListId(
     const listDeleteParams = {
       TableName: process.env.AWS_TABLE_NAME,
       Key: {
-        PK: "USER#12345",
+        PK: `USER#${session?.user?.id}`,
         SK: listId,
       },
     };

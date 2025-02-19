@@ -2,8 +2,11 @@
 
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
+import { auth } from "@/auth";
 
 export default async function addNewList(listName: string) {
+  const session = await auth();
+
   try {
     // Why? If the user did not type in the list name, we'll default it to "new list"
     // If they do specify the list name, we'll use the specified name.
@@ -21,7 +24,7 @@ export default async function addNewList(listName: string) {
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Item: {
-        PK: "USER#12345",
+        PK: `USER#${session?.user?.id}`,
         SK: `LIST#${listId}`,
         createdAt: new Date().toISOString().split(".")[0] + "Z",
         dataType: "LIST",
@@ -34,6 +37,7 @@ export default async function addNewList(listName: string) {
       ok: response.$metadata.httpStatusCode === 200 ? true : false,
       listId: `LIST#${listId}`,
       listName: newListName,
+      userId: `USER${session?.user?.id}`,
     };
   } catch (error) {
     console.log("Error while adding a new list: ", error);

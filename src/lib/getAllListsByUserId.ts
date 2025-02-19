@@ -1,16 +1,18 @@
 "use server";
 
+import { auth } from "@/auth";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { List } from "@/types";
 
 export default async function getAllListsByUserId() {
+  const session = await auth();
   try {
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       IndexName: "DatatypeIndex",
       KeyConditionExpression: "PK =:PK and dataType =:dataType",
       ExpressionAttributeValues: {
-        ":PK": { S: "USER#12345" }, //Replace hardcoded user id with param
+        ":PK": { S: `USER#${session?.user?.id}` }, //Replace hardcoded user id with param
         ":dataType": { S: "LIST" },
       },
     };

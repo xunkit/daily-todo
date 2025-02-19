@@ -3,12 +3,15 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { ReturnValue } from "@aws-sdk/client-dynamodb";
+import { auth } from "@/auth";
 
 export default async function editTaskByTaskId(
   taskId: string,
   newTask: string,
   newDeadline: string
 ): Promise<{ ok: boolean; newTask: { task: string; deadline: string } }> {
+  const session = await auth();
+
   // WHY? To limit task length and deadline length
   if (newTask.length > 120) {
     throw new Error("Task is maximum 120 characters long");
@@ -22,7 +25,7 @@ export default async function editTaskByTaskId(
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Key: {
-        PK: "USER#12345",
+        PK: `USER#${session?.user?.id}`,
         SK: taskId,
       },
       UpdateExpression: "SET taskName =:taskName, deadline =:deadline",

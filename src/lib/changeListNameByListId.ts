@@ -3,11 +3,14 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import dynamoDb from "../utils/dynamodb/dbconfig";
 import { ReturnValue } from "@aws-sdk/client-dynamodb";
+import { auth } from "@/auth";
 
 export default async function changeListNameByListId(
   listName: string,
   listId: string
 ) {
+  const session = await auth();
+
   // Why? If the user did not type in the list name, we'll default it to "new list"
   // If they do specify the list name, we'll use the specified name.
   if (listName === "" || undefined || null) {
@@ -23,7 +26,7 @@ export default async function changeListNameByListId(
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Key: {
-        PK: "USER#12345",
+        PK: `USER#${session?.user?.id}`,
         SK: listId,
       },
       UpdateExpression: "SET listName =:listName",
