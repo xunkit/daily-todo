@@ -15,8 +15,18 @@ import TaskList from "@/components/TaskList";
 import { List, Task } from "@/types";
 import React from "react";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import UserProfile from "@/components/UserProfile";
+import { Session } from "next-auth";
+import { UserSessionContext } from "@/components/UserSessionProvider";
+import { HamburgerMenuIcon, PlusIcon } from "@radix-ui/react-icons";
 
 export default function App() {
+  // userSession: the user info retrieved from the global context "UserSessionContext"
+  const userSession: Session | null = React.useContext(UserSessionContext);
+
+  // isSidebarOpen: A state to manage whether the sidebar (list of todo lists) is open
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>();
+
   // currentTab: The listId of the tab currently being selected
   const [currentTab, setCurrentTab] = React.useState<string>("");
   // allLists: An array containing all lists of the user, including metadata
@@ -86,6 +96,12 @@ export default function App() {
     }
   }, [isAddingTask]);
 
+  React.useEffect(() => {
+    if (!isLoadingList) {
+      TaskFieldRef.current?.focus();
+    }
+  }, [isLoadingList]);
+
   const handleSetCurrentTab = async (listId: string) => {
     if (currentTab !== listId) {
       setIsLoadingList(true);
@@ -99,6 +115,7 @@ export default function App() {
       const responseListId = response.listId;
       const responseListName = response.listName;
       const responseUserId = response.userId;
+      const responseCreatedAt = response.createdAt;
       if (!response.ok) {
         throw new Error("Error while adding a new list");
       }
@@ -107,7 +124,7 @@ export default function App() {
         {
           PK: responseUserId,
           SK: responseListId,
-          createdAt: "2025-02-11T01:02:00Z",
+          createdAt: responseCreatedAt,
           dataType: "LIST",
           listName: responseListName,
           key: responseListId,
@@ -246,19 +263,30 @@ export default function App() {
 
   const AddListButton = () => {
     return (
-      <div
-        className="bg-gray-300 text-gray-800 text-xl font-extrabold w-10 h-10 rounded-full hover:bg-gray-400 after:content-[attr(data-content)] after:relative after:right-[0px] after:top-[4px]"
-        data-content="+"
-      />
+      <div className="text-gray-800 text-base font-medium px-4 py-2 w-[100%] rounded-full hover:bg-black/10 flex items-center gap-4">
+        <PlusIcon className="stroke-black stroke-[1px] [&>path]:stroke-inherit" />{" "}
+        New list
+      </div>
     );
   };
 
   return (
     <>
-      <div className="flex justify-center items-stretch">
-        <div className="w-[250px] lg:w-[300px] pt-8 px-4 bg-sky-50 min-h-[100svh]">
-          <div className="flex justify-between mb-8 w-[100%] items-center pr-5">
-            <h2 className="text-xl font-bold font-mono py-2 px-5">MY LISTS</h2>
+      <div className="flex justify-center items-stretch relative">
+        <button
+          className="absolute top-6 left-5 hover:bg-black/10 p-4 rounded-full z-50"
+          onClick={() => setIsSidebarOpen((isSidebarOpen) => !isSidebarOpen)}
+        >
+          <HamburgerMenuIcon />
+        </button>
+        <div
+          className={`w-[250px] lg:w-[300px] pt-32 px-4 bg-sky-50 min-h-[100svh] max-sm:absolute max-sm:inset-0 ${
+            isSidebarOpen
+              ? "block max-sm:w-[80%] black-overlay-behind"
+              : "hidden"
+          }`}
+        >
+          <div className="flex justify-between mb-4 w-[100%] items-center pr-5">
             <AddTaskListDialog
               trigger={<AddListButton />}
               onSubmit={handleAddNewList}
@@ -270,7 +298,7 @@ export default function App() {
                 const dateA = new Date(listA.createdAt).getTime();
                 const dateB = new Date(listB.createdAt).getTime();
 
-                return dateA - dateB;
+                return dateB - dateA;
               })
               .map((list) => {
                 return (
@@ -295,27 +323,44 @@ export default function App() {
                 <span className="text-lg">Loading…</span>
               </div>
             </div>
+
             <div className="px-12 py-12 pt-4"></div>
           </div>
         ) : currentTab !== "" ? (
-          <div className="flex-1">
-            <div className="flex flex-col justify-between items-start px-12 py-8">
-              <h2 className="text-2xl font-bold">{currentTabName}</h2>
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  {remainingTasks > 1
-                    ? `${remainingTasks} tasks`
-                    : `${remainingTasks} task`}{" "}
-                  remaining
-                </span>
-                {congratulations && (
-                  <>
-                    <span className="font-bold text-sky-800 underline underline-offset-4 pl-[8px] pt-[2px]">
-                      {congratulations} 🎊
-                    </span>
-                  </>
-                )}
+          <div
+            className={`flex-1 ${
+              isSidebarOpen ? "max-sm:relative max-sm:-z-10" : ""
+            }`}
+          >
+            <div
+              className={`flex justify-between items-center px-12 ${
+                isSidebarOpen ? "" : "ml-8"
+              }`}
+            >
+              <div className="flex flex-col justify-between items-start py-8">
+                <h2 className="text-2xl font-bold">{currentTabName}</h2>
+                <div className="flex gap-2">
+                  <span className="text-lg">
+                    {remainingTasks > 1
+                      ? `${remainingTasks} tasks`
+                      : `${remainingTasks} task`}{" "}
+                    remaining
+                  </span>
+                  {congratulations && (
+                    <>
+                      <span className="font-bold text-sky-800 underline underline-offset-4 pl-[8px] pt-[2px]">
+                        {congratulations} 🎊
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
+              {userSession?.user?.name && userSession?.user?.image && (
+                <UserProfile
+                  displayName={userSession.user.name}
+                  avatarUrl={userSession.user.image}
+                />
+              )}
             </div>
             <div className="px-12 py-12 pt-4">
               <form

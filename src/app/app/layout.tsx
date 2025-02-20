@@ -26,5 +26,5 @@ export default async function RootLayout({
     );
   }
 
-  return <>{children};</>;
+  return <>{children}</>;
 }

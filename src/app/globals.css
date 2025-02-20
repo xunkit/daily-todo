@@ -9,3 +9,14 @@
 body {
   background: #ffffff;
 }
+
+@media (max-width: 640px) {
+  .black-overlay-behind::before {
+    @apply bg-black/50 inset-0;
+    content: "";
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+  }
+}

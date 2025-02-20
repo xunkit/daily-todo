@@ -21,12 +21,13 @@ export default async function addNewList(listName: string) {
     // ListIds are created server-side then sent back to the user via response
     // Why? To prevent the user from tampering with ids using custom requests
     const listId = crypto.randomUUID();
+    const createdAt = new Date().toISOString().split(".")[0] + "Z";
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Item: {
         PK: `USER#${session?.user?.id}`,
         SK: `LIST#${listId}`,
-        createdAt: new Date().toISOString().split(".")[0] + "Z",
+        createdAt,
         dataType: "LIST",
         listName: newListName,
       },
@@ -38,6 +39,7 @@ export default async function addNewList(listName: string) {
       listId: `LIST#${listId}`,
       listName: newListName,
       userId: `USER${session?.user?.id}`,
+      createdAt,
     };
   } catch (error) {
     console.log("Error while adding a new list: ", error);
