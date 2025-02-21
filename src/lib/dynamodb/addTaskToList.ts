@@ -1,7 +1,7 @@
 "use server";
 
 import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
-import dynamoDb from "../utils/dynamodb/dbconfig";
+import dynamoDb from "../../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
 import { auth } from "@/auth";
 

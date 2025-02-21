@@ -1,7 +1,7 @@
 "use server";
 
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import dynamoDb from "../utils/dynamodb/dbconfig";
+import dynamoDb from "../../utils/dynamodb/dbconfig";
 import { ReturnValue } from "@aws-sdk/client-dynamodb";
 import { auth } from "@/auth";
 

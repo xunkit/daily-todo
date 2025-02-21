@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import dynamoDb from "../utils/dynamodb/dbconfig";
+import dynamoDb from "../../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
 
 export default async function getAllTasksByUserIdAndListId(currentTab: string) {

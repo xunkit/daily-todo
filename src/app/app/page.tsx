@@ -1,14 +1,14 @@
 "use client";
 
-import addNewList from "@/lib/addNewList";
-import addTaskToList from "@/lib/addTaskToList";
-import changeListNameByListId from "@/lib/changeListNameByListId";
-import deleteListByListId from "@/lib/deleteListByListId";
-import deleteTaskByTaskId from "@/lib/deleteTaskByTaskId";
-import editTaskByTaskId from "@/lib/editTaskByTaskId";
-import getAllListsByUserId from "@/lib/getAllListsByUserId";
-import getAllTasksByUserIdAndListId from "@/lib/getAllTasksByUserIdAndListId";
-import toggleTaskCompletionByTaskId from "@/lib/toggleTaskCompletionByTaskId";
+import addNewList from "@/lib/dynamodb/addNewList";
+import addTaskToList from "@/lib/dynamodb/addTaskToList";
+import changeListNameByListId from "@/lib/dynamodb/changeListNameByListId";
+import deleteListByListId from "@/lib/dynamodb/deleteListByListId";
+import deleteTaskByTaskId from "@/lib/dynamodb/deleteTaskByTaskId";
+import editTaskByTaskId from "@/lib/dynamodb/editTaskByTaskId";
+import getAllListsByUserId from "@/lib/dynamodb/getAllListsByUserId";
+import getAllTasksByUserIdAndListId from "@/lib/dynamodb/getAllTasksByUserIdAndListId";
+import toggleTaskCompletionByTaskId from "@/lib/dynamodb/toggleTaskCompletionByTaskId";
 import AddTaskListDialog from "@/components/AddTaskListDialog";
 import TaskItem from "@/components/TaskItem";
 import TaskList from "@/components/TaskList";
@@ -25,13 +25,16 @@ export default function App() {
   const userSession: Session | null = React.useContext(UserSessionContext);
 
   // isSidebarOpen: A state to manage whether the sidebar (list of todo lists) is open
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(true);
 
   // currentTab: The listId of the tab currently being selected
   const [currentTab, setCurrentTab] = React.useState<string>("");
   // allLists: An array containing all lists of the user, including metadata
   // and tasks inside a list. For reference, see type.tsx
   const [allLists, setAllLists] = React.useState<Array<List>>([]);
+  // isLoadingAllLists: A state to manage when the app is fetching all lists from the user
+  const [isLoadingAllLists, setIsLoadingAllLists] =
+    React.useState<boolean>(true);
   // currentList: An array containing all tasks inside the currently selected list
   // Quite a confusing name, indeed
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
@@ -83,8 +86,16 @@ export default function App() {
 
   React.useEffect(() => {
     const temp = async () => {
-      const data = await getAllListsByUserId();
-      setAllLists(data);
+      try {
+        setIsLoadingAllLists(true);
+        const data = await getAllListsByUserId();
+        setAllLists(data);
+      } catch (error) {
+        console.error((error as Error).toString());
+        throw error;
+      } finally {
+        setIsLoadingAllLists(false);
+      }
     };
 
     temp();
@@ -286,33 +297,39 @@ export default function App() {
               : "hidden"
           }`}
         >
-          <div className="flex justify-between mb-4 w-[100%] items-center pr-5">
-            <AddTaskListDialog
-              trigger={<AddListButton />}
-              onSubmit={handleAddNewList}
-            />
-          </div>
+          {isLoadingAllLists === false && (
+            <div className="flex justify-between mb-4 w-[100%] items-center pr-5">
+              <AddTaskListDialog
+                trigger={<AddListButton />}
+                onSubmit={handleAddNewList}
+              />
+            </div>
+          )}
           <ul className="text-lg flex flex-col">
-            {[...allLists]
-              .sort((listA, listB) => {
-                const dateA = new Date(listA.createdAt).getTime();
-                const dateB = new Date(listB.createdAt).getTime();
+            {isLoadingAllLists ? (
+              <p className="px-4"> Loading… </p>
+            ) : (
+              [...allLists]
+                .sort((listA, listB) => {
+                  const dateA = new Date(listA.createdAt).getTime();
+                  const dateB = new Date(listB.createdAt).getTime();
 
-                return dateB - dateA;
-              })
-              .map((list) => {
-                return (
-                  <TaskList
-                    key={list.key}
-                    title={list.listName}
-                    id={list.SK}
-                    currentTab={currentTab}
-                    handleSetCurrentTab={handleSetCurrentTab}
-                    handleListNameChange={handleListNameChange}
-                    handleDeleteList={handleDeleteList}
-                  />
-                );
-              })}
+                  return dateB - dateA;
+                })
+                .map((list) => {
+                  return (
+                    <TaskList
+                      key={list.key}
+                      title={list.listName}
+                      id={list.SK}
+                      currentTab={currentTab}
+                      handleSetCurrentTab={handleSetCurrentTab}
+                      handleListNameChange={handleListNameChange}
+                      handleDeleteList={handleDeleteList}
+                    />
+                  );
+                })
+            )}
           </ul>
         </div>
         {isLoadingList === true ? (
@@ -462,9 +479,19 @@ export default function App() {
             </ul>
           </div>
         ) : (
-          <h2 className="text-2xl font-bold p-8 flex-[80%] text-center">
-            Select a list
-          </h2>
+          <div
+            className={`p-8 flex-[80%] flex items-start ${
+              isSidebarOpen ? "" : "ml-12"
+            } `}
+          >
+            <h2 className="text-2xl font-bold flex-1">Select a list</h2>
+            {userSession?.user?.name && userSession?.user?.image && (
+              <UserProfile
+                displayName={userSession.user.name}
+                avatarUrl={userSession.user.image}
+              />
+            )}
+          </div>
         )}
       </div>
     </>
