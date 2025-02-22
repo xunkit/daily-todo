@@ -74,6 +74,8 @@ export default function App() {
   )?.length;
 
   React.useEffect(() => {
+    setIsLoadingList(true);
+
     const fetchTasks = async () => {
       const tasks = await getAllTasksByUserIdAndListId(currentTab);
       setCurrentList(tasks);
