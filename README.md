@@ -21,7 +21,6 @@ If you'd like to run DailyTodo locally, you'll need to:
     * You'll need to configure your AWS DynamoDB credentials.
     * You'll also need to set up your PostgreSQL database connection string.
     * Finally, you'll need to obtain and configure your Google OAuth2 client ID and secret.
-    * These are sensitive values. Make sure you do not commit them to your repository.
 3.  Install dependencies:
     ```bash
     npm install
@@ -30,8 +29,6 @@ If you'd like to run DailyTodo locally, you'll need to:
     ```bash
     npm run dev
     ```
-
-**Note:** Due to the sensitive nature of database and authentication credentials, detailed setup instructions are omitted. You will need to configure these yourself.
 
 ## Usage Instructions
 
