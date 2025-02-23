@@ -128,12 +128,6 @@ export default function App() {
     }
   }, [isAddingTask]);
 
-  React.useEffect(() => {
-    if (!isLoadingList) {
-      TaskFieldRef.current?.focus();
-    }
-  }, [isLoadingList]);
-
   const handleSetCurrentTab = async (listId: string) => {
     if (currentTab !== listId) {
       setIsLoadingList(true);
@@ -232,6 +226,13 @@ export default function App() {
       if (!response.ok) {
         throw new Error("Error while changing the task information");
       }
+      const nextCurrentList = [...currentList];
+      const affectedTask = nextCurrentList.find((task) => task.SK === taskId);
+      if (affectedTask) {
+        affectedTask.taskName = response.newTask.task;
+        affectedTask.deadline = response.newTask.deadline;
+      }
+      setCurrentList(nextCurrentList);
       return {
         task: response.newTask.task,
         deadline: response.newTask.deadline,

@@ -156,9 +156,15 @@ const TaskList = ({
         <DropdownMenu.Portal>
           <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
             <EditListDialog>
-              <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
-                Edit
-              </button>
+              <DropdownMenu.Item
+                onSelect={(e: Event) => {
+                  e.preventDefault();
+                }}
+              >
+                <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
+                  Edit
+                </button>
+              </DropdownMenu.Item>
             </EditListDialog>
             <DeleteDialog
               type="list"
@@ -166,9 +172,15 @@ const TaskList = ({
                 await onDelete(id);
               }}
             >
-              <button className="p-2 bg-red-50 hover:bg-red-100 w-[100%] text-start hover:outline-none">
-                Delete
-              </button>
+              <DropdownMenu.Item
+                onSelect={(e: Event) => {
+                  e.preventDefault();
+                }}
+              >
+                <button className="p-2 bg-red-50 hover:bg-red-100 w-[100%] text-start hover:outline-none">
+                  Delete
+                </button>
+              </DropdownMenu.Item>
             </DeleteDialog>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>

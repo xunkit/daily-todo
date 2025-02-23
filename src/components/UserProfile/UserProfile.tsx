@@ -25,20 +25,24 @@ function UserProfile({ displayName, avatarUrl }: UserProfileProps) {
         </Dropdown.Trigger>
         <Dropdown.Portal>
           <Dropdown.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
-            <Link
-              href="/app/settings"
-              className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start"
-            >
-              Settings
-            </Link>
-            <button
-              className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start"
-              onClick={() => {
-                signOut();
-              }}
-            >
-              Sign out
-            </button>
+            <Dropdown.Item asChild>
+              <Link
+                href="/app/settings"
+                className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start"
+              >
+                Settings
+              </Link>
+            </Dropdown.Item>
+            <Dropdown.Item asChild>
+              <button
+                className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start"
+                onClick={() => {
+                  signOut();
+                }}
+              >
+                Sign out
+              </button>
+            </Dropdown.Item>
           </Dropdown.Content>
         </Dropdown.Portal>
       </Dropdown.Root>

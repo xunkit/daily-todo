@@ -50,7 +50,8 @@ const TaskItem = ({
     const [isSubmitting, setIsSubmitting] = React.useState<boolean>();
 
     const clearForm = () => {
-      setTentativeTask("");
+      setTentativeTask(title);
+      setTentativeDeadline(deadline);
       setError("");
     };
 
@@ -133,10 +134,10 @@ const TaskItem = ({
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className={`bg-sky-500 px-4 py-2 ${
+                  className={` px-4 py-2 ${
                     isSubmitting
                       ? "bg-gray-400 hover:bg-gray-400"
-                      : "hover:bg-sky-700"
+                      : "bg-sky-500 hover:bg-sky-700"
                   }`}
                 >
                   Save
@@ -174,7 +175,7 @@ const TaskItem = ({
         >
           <DropdownMenu.Trigger asChild>
             <button
-              className={`absolute right-0 h-[100%] p-2 hover:bg-black/20 focus:bg-black/20 ${
+              className={`absolute right-0 w-fit h-fit aspect-square rounded-full p-2 hover:bg-black/20 focus:bg-black/20 ${
                 isDropdownOpen ? "bg-black/20" : ""
               } active:outline-none focus-visible:outline-none`}
             >
@@ -185,19 +186,32 @@ const TaskItem = ({
           <DropdownMenu.Portal>
             <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
               <EditTaskDialog>
-                <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
-                  Edit
-                </button>
+                <DropdownMenu.Item
+                  onSelect={(e: Event) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
+                    Edit
+                  </button>
+                </DropdownMenu.Item>
               </EditTaskDialog>
+
               <DeleteDialog
                 type="task"
                 onDelete={async () => {
                   await handleDelete(taskId);
                 }}
               >
-                <button className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start">
-                  Delete
-                </button>
+                <DropdownMenu.Item
+                  onSelect={(e: Event) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <button className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start">
+                    Delete
+                  </button>
+                </DropdownMenu.Item>
               </DeleteDialog>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>

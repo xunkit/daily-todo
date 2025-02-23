@@ -6,6 +6,7 @@ import updateProfileById from "@/lib/prisma/updateDisplayNameByUserId";
 import { Session } from "next-auth";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Settings = () => {
   // userSession: the user info retrieved from the global context "UserSessionContext"
@@ -24,6 +25,8 @@ const Settings = () => {
       setTentativeName(userSession.user.name);
     }
   }, [userSession]);
+
+  const router = useRouter();
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,17 +81,33 @@ const Settings = () => {
             disabled={isSaving}
             required
           />
-          <button
-            className={`my-4 self-end w-fit px-8 py-2  rounded-full ${
-              isSaving
-                ? "bg-gray-400 hover:bg-gray-400"
-                : "bg-sky-300 text-sky-950 hover:bg-sky-400"
-            }`}
-            type="submit"
-            disabled={isSaving}
-          >
-            Save
-          </button>
+          <div className="flex justify-end gap-4">
+            <button
+              className={`my-4 w-fit px-8 py-2  rounded-full ${
+                isSaving
+                  ? "bg-gray-400 hover:bg-gray-400"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+              disabled={isSaving}
+              type="button"
+              onClick={() => {
+                router.back();
+              }}
+            >
+              Go back
+            </button>
+            <button
+              className={`my-4 w-fit px-8 py-2  rounded-full ${
+                isSaving
+                  ? "bg-gray-400 hover:bg-gray-400"
+                  : "bg-sky-300 text-sky-950 hover:bg-sky-400"
+              }`}
+              type="submit"
+              disabled={isSaving}
+            >
+              Save
+            </button>
+          </div>
           {error !== "" && <p className="text-red-400">{error}</p>}
           {successMsg !== "" && <p className="text-green-400">{successMsg}</p>}
         </form>

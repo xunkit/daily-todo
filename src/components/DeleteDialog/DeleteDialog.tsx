@@ -7,7 +7,12 @@ interface DeleteDialogProps {
   children: React.ReactNode;
 }
 
-function DeleteDialog({ onDelete, type, children }: DeleteDialogProps) {
+function DeleteDialog({
+  onDelete,
+  type,
+  children,
+  ...props
+}: DeleteDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>();
   const [isDeleting, setIsDeleting] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string>("");
@@ -34,7 +39,9 @@ function DeleteDialog({ onDelete, type, children }: DeleteDialogProps) {
         setIsDialogOpen(open);
       }}
     >
-      <Alert.Trigger asChild>{children}</Alert.Trigger>
+      <Alert.Trigger asChild {...props}>
+        {children}
+      </Alert.Trigger>
       <Alert.Portal>
         <Alert.Overlay className="fixed inset-0 bg-black/60" />
         <Alert.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow min-w-[400px]">
