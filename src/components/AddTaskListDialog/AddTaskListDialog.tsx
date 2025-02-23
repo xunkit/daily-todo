@@ -54,7 +54,7 @@ function AddTaskListDialog({ trigger, onSubmit }: AddTaskListDialogProps) {
               List name
             </label>
             <input
-              className="bg-inherit min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+              className="bg-inherit min-w-[300px] sm:min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
               placeholder="New list"
               id={id}
               value={tentativeListName}
@@ -79,10 +79,10 @@ function AddTaskListDialog({ trigger, onSubmit }: AddTaskListDialogProps) {
               </Dialog.Close>
               <button
                 type="submit"
-                className={`bg-sky-500 px-4 py-2 ${
+                className={` px-4 py-2 ${
                   isSubmitting
                     ? "bg-gray-400 hover:bg-gray-400"
-                    : "hover:bg-sky-700"
+                    : "bg-sky-500 hover:bg-sky-700"
                 }`}
                 disabled={isSubmitting}
               >

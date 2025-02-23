@@ -55,7 +55,7 @@ const Settings = () => {
     <>
       <div className="bg-sky-50 flex justify-between items-center px-8 py-8">
         <Link href="/">
-          <h1 className="text-sky-950 text-2xl font-bold">DailyTodo</h1>
+          <h1 className="text-sky-950 font-bold">DailyTodo</h1>
         </Link>
         {userSession?.user?.name && userSession?.user?.image && (
           <UserProfile

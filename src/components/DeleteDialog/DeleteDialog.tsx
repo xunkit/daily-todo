@@ -3,10 +3,11 @@ import * as Alert from "@radix-ui/react-alert-dialog";
 
 interface DeleteDialogProps {
   onDelete: () => Promise<void>;
+  type: "list" | "task";
   children: React.ReactNode;
 }
 
-function DeleteDialog({ onDelete, children }: DeleteDialogProps) {
+function DeleteDialog({ onDelete, type, children }: DeleteDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>();
   const [isDeleting, setIsDeleting] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string>("");
@@ -37,9 +38,9 @@ function DeleteDialog({ onDelete, children }: DeleteDialogProps) {
       <Alert.Portal>
         <Alert.Overlay className="fixed inset-0 bg-black/60" />
         <Alert.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow min-w-[400px]">
-          <Alert.Title className="text-3xl mb-2">Delete task</Alert.Title>
+          <Alert.Title className="text-3xl mb-2">Delete {type}</Alert.Title>
           <Alert.Description className="text-lg">
-            Do you want to delete this task? This action cannot be undone.
+            Do you want to delete this {type}? This action cannot be undone.
           </Alert.Description>
           <div className="flex w-[100%] justify-end mt-8 gap-4">
             <Alert.Cancel asChild>

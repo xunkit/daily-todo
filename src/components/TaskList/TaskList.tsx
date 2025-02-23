@@ -9,6 +9,7 @@ const TaskList = ({
   title,
   id,
   currentTab,
+  disabled,
   handleSetCurrentTab: onSetCurrentTab,
   handleListNameChange: onSubmit,
   handleDeleteList: onDelete,
@@ -71,14 +72,14 @@ const TaskList = ({
         <Dialog.Trigger asChild>{children}</Dialog.Trigger>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/60" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow min-w-[400px]">
-            <Dialog.Title className="text-3xl mb-8">Edit list</Dialog.Title>
-            <form className="flex flex-col text-xl" onSubmit={handleSubmit}>
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow">
+            <Dialog.Title className="text-xl mb-8">Edit list</Dialog.Title>
+            <form className="flex flex-col" onSubmit={handleSubmit}>
               <label htmlFor={inputId} className="font-bold">
                 List name
               </label>
               <input
-                className="bg-inherit min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                className="bg-inherit min-w-[300px] sm:min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                 placeholder="Name"
                 id={inputId}
                 required
@@ -130,6 +131,7 @@ const TaskList = ({
         className={`cursor-pointer p-4 px-5 w-[80%] truncate text-start ${
           isBeingSelected ? "font-bold text-[105%]" : ""
         }`}
+        disabled={disabled}
         onClick={() => onSetCurrentTab(id)}
       >
         {listName}
@@ -159,6 +161,7 @@ const TaskList = ({
               </button>
             </EditListDialog>
             <DeleteDialog
+              type="list"
               onDelete={async () => {
                 await onDelete(id);
               }}

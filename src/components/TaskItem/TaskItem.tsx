@@ -163,7 +163,7 @@ const TaskItem = ({
         disabled={isToggling}
       />
       <div className="relative flex flex-col gap-1 w-[100%]">
-        <span className="text-lg pr-8 break-all">{task}</span>
+        <span className="text-lg pr-8 break-words">{task}</span>
         <span className="text-base font-mono">{deadline}</span>
         <DropdownMenu.Root
           defaultOpen={false}
@@ -190,6 +190,7 @@ const TaskItem = ({
                 </button>
               </EditTaskDialog>
               <DeleteDialog
+                type="task"
                 onDelete={async () => {
                   await handleDelete(taskId);
                 }}

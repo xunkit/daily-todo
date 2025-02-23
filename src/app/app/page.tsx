@@ -25,7 +25,26 @@ export default function App() {
   const userSession: Session | null = React.useContext(UserSessionContext);
 
   // isSidebarOpen: A state to manage whether the sidebar (list of todo lists) is open
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(false);
+
+  // Close the sidebar if the user's on mobile, open it if the user's on desktop
+  React.useEffect(() => {
+    if (window.innerWidth > 640) {
+      setIsSidebarOpen(true);
+    }
+
+    const mediaQuery = window.matchMedia("(min-width: 640px)");
+
+    const handleMediaQueryChange = (event: MediaQueryListEvent) => {
+      setIsSidebarOpen(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    };
+  }, []);
 
   // currentTab: The listId of the tab currently being selected
   const [currentTab, setCurrentTab] = React.useState<string>("");
@@ -39,7 +58,7 @@ export default function App() {
   // Quite a confusing name, indeed
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
   // isLoadingList: A state to manage when the app is fetching tasks from a list
-  const [isLoadingList, setIsLoadingList] = React.useState<boolean>();
+  const [isLoadingList, setIsLoadingList] = React.useState<boolean>(false);
   // tentativeTask: A state to manage the current task being typed in
   const [tentativeTask, setTentativeTask] = React.useState<string>("");
   // tentativeDeadline: A state to manage the current deadline being typed in
@@ -287,15 +306,15 @@ export default function App() {
     <>
       <div className="flex justify-center items-stretch relative">
         <button
-          className="absolute top-6 left-5 hover:bg-black/10 p-4 rounded-full z-50"
+          className="absolute top-9 sm:top-6 left-2 sm:left-5 hover:bg-black/10 p-4 rounded-full z-50"
           onClick={() => setIsSidebarOpen((isSidebarOpen) => !isSidebarOpen)}
         >
           <HamburgerMenuIcon />
         </button>
         <div
-          className={`w-[250px] lg:w-[300px] pt-32 px-4 bg-sky-50 min-h-[100svh] max-sm:absolute max-sm:inset-0 ${
+          className={`sm:min-w-[300px] pt-32 px-4 bg-sky-50 min-h-[100svh] absolute inset-0 sm:static sm:inset-auto ${
             isSidebarOpen
-              ? "block max-sm:w-[80%] black-overlay-behind"
+              ? "block w-[80%] sm:w-auto black-overlay-behind"
               : "hidden"
           }`}
         >
@@ -328,6 +347,7 @@ export default function App() {
                       handleSetCurrentTab={handleSetCurrentTab}
                       handleListNameChange={handleListNameChange}
                       handleDeleteList={handleDeleteList}
+                      disabled={isLoadingList}
                     />
                   );
                 })
@@ -336,23 +356,23 @@ export default function App() {
         </div>
         {isLoadingList === true ? (
           <div className="flex-1">
-            <div className="flex flex-col justify-between items-start px-12 py-8">
+            <div className="flex flex-col justify-between items-start ml-12 sm:ml-auto px-2 sm:px-12 py-8">
               <h2 className="text-2xl font-bold">{currentTabName}</h2>
               <div className="flex gap-2">
                 <span className="text-lg">Loading…</span>
               </div>
             </div>
 
-            <div className="px-12 py-12 pt-4"></div>
+            <div className="px-6 sm:px-12 py-12 pt-4"></div>
           </div>
         ) : currentTab !== "" ? (
           <div
             className={`flex-1 ${
-              isSidebarOpen ? "max-sm:relative max-sm:-z-10" : ""
+              isSidebarOpen ? "relative -z-10 sm:static sm:z-auto" : ""
             }`}
           >
             <div
-              className={`flex justify-between items-center px-12 ${
+              className={`flex justify-between items-center px-6 sm:px-12 ${
                 isSidebarOpen ? "" : "ml-8"
               }`}
             >
@@ -381,13 +401,13 @@ export default function App() {
                 />
               )}
             </div>
-            <div className="px-12 py-12 pt-4">
+            <div className="px-6 sm:px-12 py-12 pt-4">
               <form
-                className="flex gap-8 text-lg"
+                className="flex gap-8 text-lg flex-wrap"
                 onSubmit={handleAddTaskToList}
               >
                 <input
-                  className="flex-[60%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                  className="flex-auto bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
                   placeholder="New task"
                   value={tentativeTask}
@@ -400,7 +420,7 @@ export default function App() {
                   required
                 />
                 <input
-                  className="flex-[20%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                  className="min-w-[100px] sm:max-w-[20%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
                   placeholder="Deadline"
                   value={tentativeDeadline}
@@ -434,7 +454,7 @@ export default function App() {
                 onValueChange={(value: "all" | "completed" | "pending") => {
                   setTaskFilterMode(value);
                 }}
-                className="flex gap-8 px-12"
+                className="flex gap-8 px-6 sm:px-12"
               >
                 <ToggleGroup.Item
                   value="all"
@@ -446,17 +466,17 @@ export default function App() {
                   value="pending"
                   className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
                 >
-                  Pending only
+                  Pending
                 </ToggleGroup.Item>
                 <ToggleGroup.Item
                   value="completed"
                   className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
                 >
-                  Completed only
+                  Completed
                 </ToggleGroup.Item>
               </ToggleGroup.Root>
             </div>
-            <ul className="px-12 py-8 flex flex-col">
+            <ul className="px-6 sm:px-12 py-8 flex flex-col">
               {[...filteredList]
                 .sort((taskA, taskB) => {
                   const dateA = new Date(taskA.createdAt).getTime();
@@ -482,7 +502,7 @@ export default function App() {
           </div>
         ) : (
           <div
-            className={`p-8 flex-[80%] flex items-start ${
+            className={`p-8 flex-[80%] flex items-center sm:items-start ${
               isSidebarOpen ? "" : "ml-12"
             } `}
           >

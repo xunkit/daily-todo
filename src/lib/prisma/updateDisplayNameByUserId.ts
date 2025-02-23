@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/prisma";
+import { revalidatePath } from "next/cache";
 
 export default async function updateDisplayNameByUserId(
   userId: string,
@@ -15,6 +16,7 @@ export default async function updateDisplayNameByUserId(
       where: { id: userId },
       data: { name: newName },
     });
+    revalidatePath("/");
     return newName;
   } catch (error) {
     console.error(error);

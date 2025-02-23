@@ -1,15 +1,21 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import Loading from "./loading";
+import AuthCheck from "@/components/AuthCheck";
+import { Metadata } from "next";
 
-export default async function RootLayout({
+export const metadata: Metadata = {
+  title: "App",
+  description: "Manage your daily to-dos",
+};
+
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  if (!session?.user) {
-    redirect("/");
-  }
-
-  return <>{children}</>;
+  return (
+    <Suspense fallback={<Loading />}>
+      <AuthCheck>{children}</AuthCheck>
+    </Suspense>
+  );
 }

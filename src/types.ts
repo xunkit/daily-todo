@@ -29,6 +29,7 @@ export interface TaskListProps {
   title: string;
   id: string;
   currentTab: string;
+  disabled: boolean;
   handleSetCurrentTab: (id: string) => void;
   handleListNameChange: (newName: string, id: string) => Promise<string>;
   handleDeleteList: (listId: string) => Promise<void>;
