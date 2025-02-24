@@ -45,8 +45,10 @@ function DeleteDialog({
       <Alert.Portal>
         <Alert.Overlay className="fixed inset-0 bg-black/60" />
         <Alert.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow min-w-[400px]">
-          <Alert.Title className="text-3xl mb-2">Delete {type}</Alert.Title>
-          <Alert.Description className="text-lg">
+          <Alert.Title className="text-lg font-bold mb-2">
+            Delete {type}
+          </Alert.Title>
+          <Alert.Description className="">
             Do you want to delete this {type}? This action cannot be undone.
           </Alert.Description>
           <div className="flex w-[100%] justify-end mt-8 gap-4">

@@ -73,7 +73,7 @@ const TaskList = ({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/60" />
           <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow">
-            <Dialog.Title className="text-xl mb-8">Edit list</Dialog.Title>
+            <Dialog.Title className="text-lg mb-8">Edit list</Dialog.Title>
             <form className="flex flex-col" onSubmit={handleSubmit}>
               <label htmlFor={inputId} className="font-bold">
                 List name
@@ -125,7 +125,7 @@ const TaskList = ({
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>();
   return (
     <li
-      className={`flex justify-between items-center relative rounded-full ${turnBlueIfHoveredCSS} ${turnBlueIfSelectedCSS}`}
+      className={`flex justify-between items-center relative rounded-lg ${turnBlueIfHoveredCSS} ${turnBlueIfSelectedCSS}`}
     >
       <button
         className={`cursor-pointer p-4 px-5 w-[80%] truncate text-start ${
@@ -154,7 +154,7 @@ const TaskList = ({
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
-          <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
+          <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow p-2">
             <EditListDialog>
               <DropdownMenu.Item
                 onSelect={(e: Event) => {

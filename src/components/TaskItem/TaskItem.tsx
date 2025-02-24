@@ -94,7 +94,7 @@ const TaskItem = ({
           <Dialog.Overlay className="fixed inset-0 bg-black/60" />
           <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-8 text-gray-900 shadow min-w-[400px]">
             <Dialog.Title className="text-3xl mb-8">Edit list</Dialog.Title>
-            <form className="flex flex-col text-xl" onSubmit={handleSubmit}>
+            <form className="flex flex-col text-lg" onSubmit={handleSubmit}>
               <label htmlFor={inputId1} className="font-bold">
                 Task
               </label>
@@ -184,7 +184,7 @@ const TaskItem = ({
           </DropdownMenu.Trigger>
 
           <DropdownMenu.Portal>
-            <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
+            <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-lg p-2">
               <EditTaskDialog>
                 <DropdownMenu.Item
                   onSelect={(e: Event) => {

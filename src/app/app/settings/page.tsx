@@ -1,18 +1,15 @@
 "use client";
 
-import UserProfile from "@/components/UserProfile";
 import { UserSessionContext } from "@/components/UserSessionProvider";
 import updateProfileById from "@/lib/prisma/updateDisplayNameByUserId";
 import { Session } from "next-auth";
 import React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 const Settings = () => {
   // userSession: the user info retrieved from the global context "UserSessionContext"
   const userSession: Session | null = React.useContext(UserSessionContext);
-
-  const [displayName, setDisplayName] = React.useState<string>("");
   const [tentativeName, setTentativeName] = React.useState<string>("");
 
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
@@ -21,7 +18,6 @@ const Settings = () => {
 
   React.useEffect(() => {
     if (userSession?.user?.name) {
-      setDisplayName(userSession.user.name);
       setTentativeName(userSession.user.name);
     }
   }, [userSession]);
@@ -40,7 +36,6 @@ const Settings = () => {
         tentativeName
       );
       if (newName) {
-        setDisplayName(newName);
       } else {
         throw new Error("An error occurred while changing the display name");
       }
@@ -56,17 +51,7 @@ const Settings = () => {
 
   return (
     <>
-      <div className="bg-sky-50 flex justify-between items-center px-8 py-8">
-        <Link href="/">
-          <h1 className="text-sky-950 font-bold">DailyTodo</h1>
-        </Link>
-        {userSession?.user?.name && userSession?.user?.image && (
-          <UserProfile
-            displayName={displayName}
-            avatarUrl={userSession.user.image}
-          />
-        )}
-      </div>
+      <Header />
       <div className="flex flex-col items-center py-8">
         <h2 className="text-3xl font-bold mb-8">Settings</h2>
         <form
@@ -75,7 +60,7 @@ const Settings = () => {
         >
           <label className="mb-2 font-bold">Display Name</label>
           <input
-            className="rounded-full border-2 border-black px-4 py-2"
+            className="rounded-lg border-2 border-black px-4 py-2"
             value={tentativeName}
             onChange={(e) => setTentativeName(e.target.value)}
             disabled={isSaving}
@@ -83,7 +68,7 @@ const Settings = () => {
           />
           <div className="flex justify-end gap-4">
             <button
-              className={`my-4 w-fit px-8 py-2  rounded-full ${
+              className={`my-4 w-fit px-8 py-2  rounded-lg ${
                 isSaving
                   ? "bg-gray-400 hover:bg-gray-400"
                   : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -97,7 +82,7 @@ const Settings = () => {
               Go back
             </button>
             <button
-              className={`my-4 w-fit px-8 py-2  rounded-full ${
+              className={`my-4 w-fit px-8 py-2  rounded-lg ${
                 isSaving
                   ? "bg-gray-400 hover:bg-gray-400"
                   : "bg-sky-300 text-sky-950 hover:bg-sky-400"

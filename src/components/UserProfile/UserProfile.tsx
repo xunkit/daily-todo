@@ -12,7 +12,7 @@ interface UserProfileProps {
 function UserProfile({ displayName, avatarUrl }: UserProfileProps) {
   return (
     <div className="flex flex-row items-center gap-4">
-      <p className="font-bold">{displayName}</p>
+      <p className="hidden sm:block">Hello, {displayName}</p>
       <Dropdown.Root>
         <Dropdown.Trigger>
           <Image
@@ -24,7 +24,11 @@ function UserProfile({ displayName, avatarUrl }: UserProfileProps) {
           />
         </Dropdown.Trigger>
         <Dropdown.Portal>
-          <Dropdown.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-xl p-2">
+          <Dropdown.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow p-2">
+            <div className="block sm:hidden">
+              <p className="p-2">Hello, {displayName}</p>
+              <Dropdown.Separator className="m-[5px] h-px bg-gray-200" />
+            </div>
             <Dropdown.Item asChild>
               <Link
                 href="/app/settings"

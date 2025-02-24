@@ -296,7 +296,7 @@ export default function App() {
 
   const AddListButton = () => {
     return (
-      <div className="text-gray-800 text-base font-medium px-4 py-2 w-[100%] rounded-full hover:bg-black/10 flex items-center gap-4">
+      <div className="text-gray-800 text-base font-medium px-4 py-2 w-[100%] rounded-lg hover:bg-black/10 flex items-center gap-4">
         <PlusIcon className="stroke-black stroke-[1px] [&>path]:stroke-inherit" />{" "}
         New list
       </div>
@@ -327,7 +327,7 @@ export default function App() {
               />
             </div>
           )}
-          <ul className="text-lg flex flex-col">
+          <ul className="flex flex-col">
             {isLoadingAllLists ? (
               <p className="px-4"> Loading… </p>
             ) : (
@@ -358,7 +358,7 @@ export default function App() {
         {isLoadingList === true ? (
           <div className="flex-1">
             <div className="flex flex-col justify-between items-start ml-12 sm:ml-auto px-2 sm:px-12 py-8">
-              <h2 className="text-2xl font-bold">{currentTabName}</h2>
+              <h2 className="text-lg font-bold">{currentTabName}</h2>
               <div className="flex gap-2">
                 <span className="text-lg">Loading…</span>
               </div>
@@ -378,7 +378,7 @@ export default function App() {
               }`}
             >
               <div className="flex flex-col justify-between items-start py-8">
-                <h2 className="text-2xl font-bold">{currentTabName}</h2>
+                <h2 className="text-lg font-bold">{currentTabName}</h2>
                 <div className="flex gap-2">
                   <span className="text-lg">
                     {remainingTasks > 1
@@ -433,7 +433,7 @@ export default function App() {
                 />
                 <button
                   type="submit"
-                  className={`aspect-square text-white text-xl font-extrabold px-4  ${
+                  className={`aspect-square text-white text-lg font-extrabold px-4  ${
                     isAddingTask
                       ? "bg-gray-400 hover:bg-gray-400"
                       : "bg-black hover:bg-gray-400"
@@ -459,19 +459,19 @@ export default function App() {
               >
                 <ToggleGroup.Item
                   value="all"
-                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                  className="px-4 py-2 rounded-lg hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
                 >
                   Show all
                 </ToggleGroup.Item>
                 <ToggleGroup.Item
                   value="pending"
-                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                  className="px-4 py-2 rounded-lg hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
                 >
                   Pending
                 </ToggleGroup.Item>
                 <ToggleGroup.Item
                   value="completed"
-                  className="px-4 py-2 rounded-full hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
+                  className="px-4 py-2 rounded-lg hover:bg-sky-100 data-[state=on]:bg-sky-200 data-[state=on]:text-sky-950"
                 >
                   Completed
                 </ToggleGroup.Item>
@@ -507,7 +507,7 @@ export default function App() {
               isSidebarOpen ? "" : "ml-12"
             } `}
           >
-            <h2 className="text-2xl font-bold flex-1">Select a list</h2>
+            <h2 className="text-lg font-bold flex-1">Select a list</h2>
             {userSession?.user?.name && userSession?.user?.image && (
               <UserProfile
                 displayName={userSession.user.name}

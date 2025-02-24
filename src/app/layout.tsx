@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Lato } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import UserSessionProvider from "@/components/UserSessionProvider";
 import { auth } from "@/auth";
 import { Session } from "next-auth";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const lato = Lato({
+  variable: "--font-lato",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["100", "300", "400", "700", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,9 +26,7 @@ export default async function RootLayout({
   const session: Session | null = await auth();
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${lato.className} antialiased`}>
         <div className="root">
           <UserSessionProvider session={session}>
             {children}
