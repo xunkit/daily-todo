@@ -1,26 +1,39 @@
 "use server";
 
-import { auth } from "@/auth";
 import dynamoDb from "../../utils/dynamodb/dbconfig";
 import { Task } from "@/types";
+import { PaginationLimit } from "@/constants";
+import { AttributeValue, QueryInput } from "@aws-sdk/client-dynamodb";
 
-export default async function getAllTasksByUserIdAndListId(currentTab: string) {
-  const session = await auth();
+interface FetchTasksResult {
+  tasks: Task[];
+  lastEvaluatedKey: Record<string, AttributeValue> | undefined | null;
+}
 
+export default async function getAllTasksByListId(
+  currentTab: string,
+  startKey?: Record<string, AttributeValue>
+): Promise<FetchTasksResult> {
   if (currentTab === "") {
-    return [];
+    return { tasks: [], lastEvaluatedKey: null };
   }
 
   try {
-    const params = {
+    const params: QueryInput = {
       TableName: process.env.AWS_TABLE_NAME,
       IndexName: "ListIndex",
-      KeyConditionExpression: "PK =:PK and listId =:listId",
+      KeyConditionExpression: "listId =:listId",
       ExpressionAttributeValues: {
-        ":PK": { S: `USER#${session?.user?.id}` }, //Replace hardcoded user id with param
         ":listId": { S: currentTab },
       },
+      Limit: PaginationLimit,
+      ScanIndexForward: false,
     };
+
+    if (startKey) {
+      params.ExclusiveStartKey = startKey;
+    }
+
     const data = await dynamoDb.query(params);
     const tasks: Task[] | undefined = data.Items?.map((item) => ({
       completed: item.completed.BOOL as boolean,
@@ -35,10 +48,10 @@ export default async function getAllTasksByUserIdAndListId(currentTab: string) {
     }));
 
     if (!tasks) {
-      return [];
+      return { tasks: [], lastEvaluatedKey: null };
     }
 
-    return tasks;
+    return { tasks, lastEvaluatedKey: data.LastEvaluatedKey };
   } catch (error) {
     console.log("Error while getting items: ", error);
     throw error;

@@ -7,7 +7,7 @@ import deleteListByListId from "@/lib/dynamodb/deleteListByListId";
 import deleteTaskByTaskId from "@/lib/dynamodb/deleteTaskByTaskId";
 import editTaskByTaskId from "@/lib/dynamodb/editTaskByTaskId";
 import getAllListsByUserId from "@/lib/dynamodb/getAllListsByUserId";
-import getAllTasksByUserIdAndListId from "@/lib/dynamodb/getAllTasksByUserIdAndListId";
+import getAllTasksByListId from "@/lib/dynamodb/getAllTasksByListId";
 import toggleTaskCompletionByTaskId from "@/lib/dynamodb/toggleTaskCompletionByTaskId";
 import AddTaskListDialog from "@/components/AddTaskListDialog";
 import TaskItem from "@/components/TaskItem";
@@ -19,6 +19,7 @@ import UserProfile from "@/components/UserProfile";
 import { Session } from "next-auth";
 import { UserSessionContext } from "@/components/UserSessionProvider";
 import { HamburgerMenuIcon, PlusIcon } from "@radix-ui/react-icons";
+import { AttributeValue } from "@aws-sdk/client-dynamodb";
 
 export default function App() {
   // userSession: the user info retrieved from the global context "UserSessionContext"
@@ -59,6 +60,10 @@ export default function App() {
   const [currentList, setCurrentList] = React.useState<Array<Task>>([]);
   // isLoadingList: A state to manage when the app is fetching tasks from a list
   const [isLoadingList, setIsLoadingList] = React.useState<boolean>(false);
+  // lastEvaluatedKey: A state to manage when the last fetch ended (for pagination)
+  const [lastEvaluatedKey, setLastEvaluatedKey] = React.useState<
+    Record<string, AttributeValue> | undefined | null
+  >(null);
   // tentativeTask: A state to manage the current task being typed in
   const [tentativeTask, setTentativeTask] = React.useState<string>("");
   // tentativeDeadline: A state to manage the current deadline being typed in
@@ -96,8 +101,9 @@ export default function App() {
     setIsLoadingList(true);
 
     const fetchTasks = async () => {
-      const tasks = await getAllTasksByUserIdAndListId(currentTab);
+      const { tasks, lastEvaluatedKey } = await getAllTasksByListId(currentTab);
       setCurrentList(tasks);
+      setLastEvaluatedKey(lastEvaluatedKey);
       setCongratulations("");
       setIsLoadingList(false);
     };
@@ -133,6 +139,13 @@ export default function App() {
       setIsLoadingList(true);
     }
     setCurrentTab(listId);
+  };
+
+  const handleLoadMoreTasks = async () => {
+    const { tasks: newTasks, lastEvaluatedKey: newLastEvaluatedKey } =
+      await getAllTasksByListId(currentTab, lastEvaluatedKey ?? undefined);
+    setCurrentList([...currentList, ...newTasks]);
+    setLastEvaluatedKey(newLastEvaluatedKey);
   };
 
   const handleAddNewList = async (listName: string) => {
@@ -483,7 +496,7 @@ export default function App() {
                   const dateA = new Date(taskA.createdAt).getTime();
                   const dateB = new Date(taskB.createdAt).getTime();
 
-                  return dateA - dateB;
+                  return dateB - dateA;
                 })
                 .map((task) => {
                   return (
@@ -499,6 +512,15 @@ export default function App() {
                     />
                   );
                 })}
+              {lastEvaluatedKey !== undefined && (
+                <button
+                  className="px-8 py-4 bg-white hover:bg-gray-100 rounded-lg border-black/10 border-[2px]"
+                  onClick={handleLoadMoreTasks}
+                  type="button"
+                >
+                  Load more
+                </button>
+              )}
             </ul>
           </div>
         ) : (
