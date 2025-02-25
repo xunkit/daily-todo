@@ -96,7 +96,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center py-4">
           <p>Built with 💖 </p>
 
           <Link

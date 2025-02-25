@@ -4,6 +4,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Dialog from "@radix-ui/react-dialog";
 import DeleteDialog from "../DeleteDialog";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import * as motion from "motion/react-client";
 
 const TaskItem = ({
   title,
@@ -155,72 +156,84 @@ const TaskItem = ({
   // when it's actually already opened
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>();
   return (
-    <li className="my-2 flex items-center gap-2 border-b border-gray-200 last:border-b-0 pb-6">
-      <input
-        type="checkbox"
-        checked={isCompleted}
-        onChange={async () => await handleToggleCompletion()}
-        className="mr-2 w-[32px] h-[32px]"
-        disabled={isToggling}
-      />
-      <div className="relative flex flex-col gap-1 w-[100%]">
-        <span className="text-lg pr-8 break-words">{task}</span>
-        <span className="text-base font-mono">{deadline}</span>
-        <DropdownMenu.Root
-          defaultOpen={false}
-          open={isDropdownOpen}
-          onOpenChange={(open) => {
-            setIsDropdownOpen(open);
-          }}
-        >
-          <DropdownMenu.Trigger asChild>
-            <button
-              className={`absolute right-0 w-fit h-fit aspect-square rounded-full p-2 hover:bg-black/20 focus:bg-black/20 ${
-                isDropdownOpen ? "bg-black/20" : ""
-              } active:outline-none focus-visible:outline-none`}
-            >
-              <DotsHorizontalIcon />
-            </button>
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-lg p-2">
-              <EditTaskDialog>
-                <DropdownMenu.Item
-                  onSelect={(e: Event) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
-                    Edit
-                  </button>
-                </DropdownMenu.Item>
-              </EditTaskDialog>
-
-              <DeleteDialog
-                type="task"
-                onDelete={async () => {
-                  await handleDelete(taskId);
-                }}
+    <motion.div
+      className="border-b border-gray-200 py-4"
+      initial={{ opacity: 0, marginBlock: "-22px" }}
+      animate={{ opacity: 1, marginBlock: "0px" }}
+      exit={{ opacity: 0, marginBlock: "-22px" }}
+    >
+      <motion.li
+        className="flex items-center gap-2"
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: "" }}
+        exit={{ opacity: 0, height: 0 }}
+      >
+        <input
+          type="checkbox"
+          checked={isCompleted}
+          onChange={async () => await handleToggleCompletion()}
+          className="mr-2 w-[32px] h-[32px]"
+          disabled={isToggling}
+        />
+        <div className="relative flex flex-col gap-1 w-[100%]">
+          <span className="text-lg pr-8 break-words">{task}</span>
+          <span className="text-base font-mono">{deadline}</span>
+          <DropdownMenu.Root
+            defaultOpen={false}
+            open={isDropdownOpen}
+            onOpenChange={(open) => {
+              setIsDropdownOpen(open);
+            }}
+          >
+            <DropdownMenu.Trigger asChild>
+              <button
+                className={`absolute right-0 w-fit h-fit aspect-square rounded-full p-2 hover:bg-black/20 focus:bg-black/20 ${
+                  isDropdownOpen ? "bg-black/20" : ""
+                } active:outline-none focus-visible:outline-none`}
               >
-                <DropdownMenu.Item
-                  onSelect={(e: Event) => {
-                    e.preventDefault();
+                <DotsHorizontalIcon />
+              </button>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="bg-white border-black/5 border-2 min-w-[220px] shadow text-lg p-2">
+                <EditTaskDialog>
+                  <DropdownMenu.Item
+                    onSelect={(e: Event) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <button className="p-2 hover:bg-gray-100 hover:outline-none w-[100%] block text-start">
+                      Edit
+                    </button>
+                  </DropdownMenu.Item>
+                </EditTaskDialog>
+
+                <DeleteDialog
+                  type="task"
+                  onDelete={async () => {
+                    await handleDelete(taskId);
                   }}
                 >
-                  <button className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start">
-                    Delete
-                  </button>
-                </DropdownMenu.Item>
-              </DeleteDialog>
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
-        {toggleCompletedError !== "" && (
-          <p className="text-red-400">{toggleCompletedError}</p>
-        )}
-      </div>
-    </li>
+                  <DropdownMenu.Item
+                    onSelect={(e: Event) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <button className="p-2 bg-red-50 hover:bg-red-100 hover:outline-none w-[100%] text-start">
+                      Delete
+                    </button>
+                  </DropdownMenu.Item>
+                </DeleteDialog>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+          {toggleCompletedError !== "" && (
+            <p className="text-red-400">{toggleCompletedError}</p>
+          )}
+        </div>
+      </motion.li>
+    </motion.div>
   );
 };
 

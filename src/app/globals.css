@@ -19,12 +19,12 @@ body {
 }
 
 @media (max-width: 640px) {
-  .black-overlay-behind::before {
+  .black-overlay-behind::after {
     @apply bg-black/50 inset-0;
     content: "";
     position: fixed;
-    width: 100vw;
-    height: 100vh;
+    width: 200vw;
+    height: 200vh;
     z-index: -1;
   }
 }

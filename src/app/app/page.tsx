@@ -20,13 +20,18 @@ import { Session } from "next-auth";
 import { UserSessionContext } from "@/components/UserSessionProvider";
 import { HamburgerMenuIcon, PlusIcon } from "@radix-ui/react-icons";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
+import { AnimatePresence } from "motion/react";
 
 export default function App() {
   // userSession: the user info retrieved from the global context "UserSessionContext"
   const userSession: Session | null = React.useContext(UserSessionContext);
 
   // isSidebarOpen: A state to manage whether the sidebar (list of todo lists) is open
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean>(false);
+  // Null, because in case the user wants to open it BEFORE the page has loaded and
+  // assigned whether the sidebar should be open, we should respect their choice to open or close.
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState<boolean | null>(
+    null
+  );
 
   // Close the sidebar if the user's on mobile, open it if the user's on desktop
   React.useEffect(() => {
@@ -321,7 +326,12 @@ export default function App() {
       <div className="flex justify-center items-stretch relative">
         <button
           className="absolute top-9 sm:top-6 left-2 sm:left-5 hover:bg-black/10 p-4 rounded-full z-50"
-          onClick={() => setIsSidebarOpen((isSidebarOpen) => !isSidebarOpen)}
+          onClick={() => {
+            if (isSidebarOpen === null) {
+              setIsSidebarOpen(true);
+            }
+            setIsSidebarOpen((isSidebarOpen) => !isSidebarOpen);
+          }}
         >
           <HamburgerMenuIcon />
         </button>
@@ -490,28 +500,30 @@ export default function App() {
                 </ToggleGroup.Item>
               </ToggleGroup.Root>
             </div>
-            <ul className="px-6 sm:px-12 py-8 flex flex-col">
-              {[...filteredList]
-                .sort((taskA, taskB) => {
-                  const dateA = new Date(taskA.createdAt).getTime();
-                  const dateB = new Date(taskB.createdAt).getTime();
+            <ul className="px-6 sm:px-12 py-8 flex flex-col gap-4">
+              <AnimatePresence initial={false}>
+                {[...filteredList]
+                  .sort((taskA, taskB) => {
+                    const dateA = new Date(taskA.createdAt).getTime();
+                    const dateB = new Date(taskB.createdAt).getTime();
 
-                  return dateB - dateA;
-                })
-                .map((task) => {
-                  return (
-                    <TaskItem
-                      key={task.key}
-                      title={task.taskName}
-                      time={task.deadline}
-                      completed={task.completed}
-                      taskId={task.SK}
-                      handleEditTask={handleEditTask}
-                      handleDeleteTask={handleDeleteTask}
-                      handleToggleTaskCompletion={handleToggleTaskCompletion}
-                    />
-                  );
-                })}
+                    return dateB - dateA;
+                  })
+                  .map((task) => {
+                    return (
+                      <TaskItem
+                        key={task.key}
+                        title={task.taskName}
+                        time={task.deadline}
+                        completed={task.completed}
+                        taskId={task.SK}
+                        handleEditTask={handleEditTask}
+                        handleDeleteTask={handleDeleteTask}
+                        handleToggleTaskCompletion={handleToggleTaskCompletion}
+                      />
+                    );
+                  })}
+              </AnimatePresence>
               {lastEvaluatedKey !== undefined && (
                 <button
                   className="px-8 py-4 bg-white hover:bg-gray-100 rounded-lg border-black/10 border-[2px]"
