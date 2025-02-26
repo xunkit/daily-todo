@@ -319,7 +319,6 @@ export default function App() {
       const result = await getTasksFromPrompt(prompt);
       const resultJSON: Array<{ task: string; deadline: string }> =
         JSON.parse(result);
-      console.log(resultJSON);
       for (const task of resultJSON) {
         const response = await addTaskToList(
           currentTab,
