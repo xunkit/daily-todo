@@ -8,6 +8,7 @@ Ever struggled with to-do lists because they were either too sophisticated and f
 * AWS DynamoDB (database for lists/tasks)
 * Prisma with PostgreSQL (database for user/session/account/etc.)
 * Auth.js (formerly NextAuth, for authentication using Google OAuth2)
+* Gemini API (AI task creation)
 
 ## Installation
 
