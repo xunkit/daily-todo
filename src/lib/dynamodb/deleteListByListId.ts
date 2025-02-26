@@ -14,9 +14,8 @@ export default async function deleteListByListId(
     const taskQueryParams = {
       TableName: process.env.AWS_TABLE_NAME,
       IndexName: "ListIndex",
-      KeyConditionExpression: "PK =:PK and listId =:listId",
+      KeyConditionExpression: "listId =:listId",
       ExpressionAttributeValues: {
-        ":PK": { S: `USER#${session?.user?.id}` },
         ":listId": { S: listId },
       },
     };

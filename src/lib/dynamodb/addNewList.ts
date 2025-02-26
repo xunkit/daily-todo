@@ -21,7 +21,7 @@ export default async function addNewList(listName: string) {
     // ListIds are created server-side then sent back to the user via response
     // Why? To prevent the user from tampering with ids using custom requests
     const listId = crypto.randomUUID();
-    const createdAt = new Date().toISOString().split(".")[0] + "Z";
+    const createdAt = new Date().toISOString();
     const params = {
       TableName: process.env.AWS_TABLE_NAME,
       Item: {

@@ -21,6 +21,8 @@ import { UserSessionContext } from "@/components/UserSessionProvider";
 import { HamburgerMenuIcon, PlusIcon } from "@radix-ui/react-icons";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { AnimatePresence } from "motion/react";
+import AITaskDialog from "@/components/AITaskDialog";
+import getTasksFromPrompt from "@/lib/gemini/getTasksFromPrompt";
 
 export default function App() {
   // userSession: the user info retrieved from the global context "UserSessionContext"
@@ -312,6 +314,32 @@ export default function App() {
     }
   };
 
+  const handleCreateTasksFromPrompt = async (prompt: string) => {
+    try {
+      const result = await getTasksFromPrompt(prompt);
+      const resultJSON: Array<{ task: string; deadline: string }> =
+        JSON.parse(result);
+      console.log(resultJSON);
+      for (const task of resultJSON) {
+        const response = await addTaskToList(
+          currentTab,
+          task.task,
+          task.deadline
+        );
+        if (!response.ok) {
+          throw new Error("Error while adding a new task");
+        }
+        setCurrentList((currentList) => [
+          ...currentList,
+          { ...response.newTask, key: response.newTask.SK },
+        ]);
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   const AddListButton = () => {
     return (
       <div className="text-gray-800 text-base font-medium px-4 py-2 w-[100%] rounded-lg hover:bg-black/10 flex items-center gap-4">
@@ -431,7 +459,7 @@ export default function App() {
                 onSubmit={handleAddTaskToList}
               >
                 <input
-                  className="flex-auto bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
+                  className="flex-auto relative bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
                   placeholder="New task"
                   value={tentativeTask}
@@ -443,6 +471,7 @@ export default function App() {
                   disabled={isAddingTask}
                   required
                 />
+
                 <input
                   className="min-w-[100px] sm:max-w-[20%] bg-inherit px-4 py-2 border-b-2 border-gray-400 outline-none focus:border-black"
                   type="text"
@@ -469,6 +498,11 @@ export default function App() {
               {addTaskError !== "" && (
                 <p className="text-red-400">{addTaskError}</p>
               )}
+              <AITaskDialog onSubmit={handleCreateTasksFromPrompt}>
+                <div className="bg-blue-200 px-4 py-2 rounded-lg my-4 hover:bg-blue-300">
+                  Create Tasks with AI
+                </div>
+              </AITaskDialog>
             </div>
             <div>
               <ToggleGroup.Root

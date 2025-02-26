@@ -48,7 +48,7 @@ export default async function addTaskToList(
       PK: `USER#${session?.user?.id}`,
       SK: `TASK#${taskId}`,
       listId: currentTab,
-      createdAt: new Date().toISOString().split(".")[0] + "Z",
+      createdAt: new Date().toISOString(),
       deadline: deadline,
       dataType: "TASK",
       taskName,
