@@ -18,11 +18,18 @@ export default async function getTasksFromPrompt(prompt: string) {
 
   const input: string = `${instruction} ${prompt}`;
 
-  const output = (await model.generateContent(input)).response.text();
-  const cleanedOutput = output
-    .toString()
-    .replace("```json\n", "") // Remove the backticks and "json"
-    .replace("```", "") // Remove the trailing backticks
-    .trim(); // Remove any leading/trailing whitespace
-  return cleanedOutput;
+  try {
+    const output = (await model.generateContent(input)).response.text();
+    if (output === "Error: Invalid Request") {
+      throw new Error("Error: Invalid Request");
+    }
+    const cleanedOutput = output
+      .toString()
+      .replace("```json\n", "") // Remove the backticks and "json"
+      .replace("```", "") // Remove the trailing backticks
+      .trim(); // Remove any leading/trailing whitespace
+    return cleanedOutput;
+  } catch (error) {
+    throw error;
+  }
 }
