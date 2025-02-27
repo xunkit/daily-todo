@@ -316,10 +316,9 @@ export default function App() {
 
   const handleCreateTasksFromPrompt = async (prompt: string) => {
     try {
-      const result = await getTasksFromPrompt(prompt);
-      const resultJSON: Array<{ task: string; deadline: string }> =
-        JSON.parse(result);
-      for (const task of resultJSON) {
+      const result: Array<{ task: string; deadline: string }> =
+        await getTasksFromPrompt(prompt);
+      for (const task of result) {
         const response = await addTaskToList(
           currentTab,
           task.task,

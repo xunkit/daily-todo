@@ -57,7 +57,7 @@ function AITaskDialog({ onSubmit, children }: AITaskDialogProps) {
             </label>
             <input
               className="bg-inherit min-w-[300px] sm:min-w-[400px] py-2 border-b-2 border-gray-400 outline-none focus:border-black"
-              placeholder="New list"
+              placeholder="Prompt"
               id={id}
               value={tentativePrompt}
               maxLength={1000}

@@ -20,15 +20,19 @@ export default async function getTasksFromPrompt(prompt: string) {
 
   try {
     const output = (await model.generateContent(input)).response.text();
-    if (output === "Error: Invalid Request") {
-      throw new Error("Error: Invalid Request");
-    }
     const cleanedOutput = output
       .toString()
       .replace("```json\n", "") // Remove the backticks and "json"
       .replace("```", "") // Remove the trailing backticks
       .trim(); // Remove any leading/trailing whitespace
-    return cleanedOutput;
+    try {
+      const outputJSON = JSON.parse(cleanedOutput);
+      return outputJSON;
+    } catch (jsonError) {
+      if (jsonError instanceof SyntaxError) {
+        throw new Error("Invalid Request. Please try a different prompt.");
+      }
+    }
   } catch (error) {
     throw error;
   }
